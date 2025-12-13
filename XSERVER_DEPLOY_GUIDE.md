@@ -2,8 +2,8 @@
 
 ## 🎯 前提条件
 
-- Xserver VPS契約済み
-- SSH接続情報（IPアドレス、ポート、ユーザー名、パスワード）
+- Xserver VPS 契約済み
+- SSH 接続情報（IP アドレス、ポート、ユーザー名、パスワード）
 - ドメイン（オプション）
 
 ---
@@ -11,6 +11,7 @@
 ## 📦 必要なもの
 
 1. **サーバー環境**
+
    - Ubuntu 20.04 / 22.04 (推奨)
    - Node.js 18.x 以上
    - PostgreSQL 15.x 以上
@@ -18,14 +19,14 @@
    - PM2 (プロセス管理)
 
 2. **ローカル環境**
-   - FileZilla または WinSCP (FTP/SFTPクライアント)
+   - FileZilla または WinSCP (FTP/SFTP クライアント)
    - SSH クライアント (ターミナル or PuTTY)
 
 ---
 
 ## 🚀 デプロイ手順
 
-### Step 1: SSH接続
+### Step 1: SSH 接続
 
 ```bash
 # ターミナルから接続
@@ -93,7 +94,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 ### Step 4: アプリケーションのデプロイ
 
-#### 方法A: Git経由（推奨）
+#### 方法 A: Git 経由（推奨）
 
 ```bash
 # ホームディレクトリに移動
@@ -110,19 +111,22 @@ npm install
 cd ..
 ```
 
-#### 方法B: FTP/SFTP経由
+#### 方法 B: FTP/SFTP 経由
 
 1. **FileZilla を使用**:
+
    - プロトコル: SFTP
-   - ホスト: あなたのサーバーIP
-   - ポート: SSHポート番号
+   - ホスト: あなたのサーバー IP
+   - ポート: SSH ポート番号
    - ユーザー名: pharmacy (または作成したユーザー)
    - パスワード: 設定したパスワード
 
 2. **ローカルの pharmacy-platform フォルダ全体をアップロード**
+
    - アップロード先: `/home/pharmacy/pharmacy-platform`
 
-3. **SSH接続して依存パッケージをインストール**:
+3. **SSH 接続して依存パッケージをインストール**:
+
 ```bash
 cd ~/pharmacy-platform
 npm install
@@ -182,7 +186,7 @@ NEXT_PUBLIC_API_URL=http://あなたのドメインまたはIP:3001/api
 
 ---
 
-### Step 6: Prismaのセットアップとマイグレーション
+### Step 6: Prisma のセットアップとマイグレーション
 
 ```bash
 cd ~/pharmacy-platform/backend
@@ -206,7 +210,7 @@ npm run build
 
 ---
 
-### Step 8: PM2でアプリケーションを起動
+### Step 8: PM2 でアプリケーションを起動
 
 ```bash
 # PM2設定ファイルを作成
@@ -220,32 +224,32 @@ nano ecosystem.config.js
 module.exports = {
   apps: [
     {
-      name: 'pharmacy-backend',
-      cwd: './backend',
-      script: 'src/server.js',
+      name: "pharmacy-backend",
+      cwd: "./backend",
+      script: "src/server.js",
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: '500M',
+      max_memory_restart: "500M",
       env: {
-        NODE_ENV: 'production',
-        PORT: 3001
-      }
+        NODE_ENV: "production",
+        PORT: 3001,
+      },
     },
     {
-      name: 'pharmacy-frontend',
-      script: 'npm',
-      args: 'start',
+      name: "pharmacy-frontend",
+      script: "npm",
+      args: "start",
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: '1G',
+      max_memory_restart: "1G",
       env: {
-        NODE_ENV: 'production',
-        PORT: 3005
-      }
-    }
-  ]
+        NODE_ENV: "production",
+        PORT: 3005,
+      },
+    },
+  ],
 };
 ```
 
@@ -268,7 +272,7 @@ pm2 save
 
 ---
 
-### Step 9: Nginxのリバースプロキシ設定
+### Step 9: Nginx のリバースプロキシ設定
 
 ```bash
 # Nginx設定ファイルを作成
@@ -404,7 +408,7 @@ pm2 logs
 
 ---
 
-## 🔒 SSL証明書の設定（Let's Encrypt）
+## 🔒 SSL 証明書の設定（Let's Encrypt）
 
 ```bash
 # Certbot インストール
@@ -484,19 +488,23 @@ pm2 set pm2-logrotate:retain 7
 
 ## 🔐 セキュリティ推奨事項
 
-1. **SSH設定の強化**
+1. **SSH 設定の強化**
+
    - ポート番号変更
    - パスワード認証無効化（公開鍵認証のみ）
-   - rootログイン無効化
+   - root ログイン無効化
 
 2. **環境変数の保護**
+
    - `.env`ファイルのパーミッション設定
+
    ```bash
    chmod 600 ~/pharmacy-platform/backend/.env
    chmod 600 ~/pharmacy-platform/.env.local
    ```
 
 3. **定期的なアップデート**
+
    ```bash
    sudo apt update && sudo apt upgrade -y
    npm update -g npm
@@ -514,13 +522,13 @@ pm2 set pm2-logrotate:retain 7
 ## 📞 サポート
 
 問題が発生した場合：
-1. PM2ログを確認
-2. Nginxログを確認: `sudo tail -f /var/log/nginx/error.log`
-3. PostgreSQLログを確認
+
+1. PM2 ログを確認
+2. Nginx ログを確認: `sudo tail -f /var/log/nginx/error.log`
+3. PostgreSQL ログを確認
 4. システムログを確認: `sudo journalctl -xe`
 
 ---
 
 **作成日**: 2025-12-13  
 **最終更新**: 2025-12-13
-
