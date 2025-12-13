@@ -1,0 +1,376 @@
+データベース内容
+
+-- 薬剤師マッチングプラットフォーム データベース設計
+-- PostgreSQL 15.x対応
+
+-- 拡張機能の有効化
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- ========================================
+-- 1. ユーザー管理テーブル
+-- ========================================
+
+-- ユーザータイプの列挙型
+CREATE TYPE user_type_enum AS ENUM ('pharmacist', 'pharmacy');
+
+-- ユーザーテーブル（薬剤師・薬局共通）
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    user_type user_type_enum NOT NULL,
+    is_verified BOOLEAN DEFAULT FALSE,
+    verification_token VARCHAR(255),
+    reset_password_token VARCHAR(255),
+    reset_password_expires TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP WITH TIME ZONE
+);
+
+-- ========================================
+-- 2. 薬剤師関連テーブル
+-- ========================================
+
+-- 薬剤師プロフィールテーブル
+CREATE TABLE pharmacist_profiles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    first_name_kana VARCHAR(50),
+    last_name_kana VARCHAR(50),
+    birth_date DATE,
+    gender VARCHAR(10),
+    phone VARCHAR(20),
+    postal_code VARCHAR(10),
+    prefecture VARCHAR(20),
+    city VARCHAR(50),
+    address VARCHAR(255),
+    nearest_station VARCHAR(100),
+    license_number VARCHAR(50),
+    license_issued_date DATE,
+    graduation_university VARCHAR(100),
+    graduation_year INTEGER,
+    experience_years INTEGER,
+    specialties TEXT[],
+    bio TEXT,
+    profile_image_url VARCHAR(500),
+    resume_url VARCHAR(500),
+    certificates_urls TEXT[],
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 薬剤師の希望条件テーブル
+CREATE TABLE pharmacist_preferences (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    pharmacist_id UUID REFERENCES pharmacist_profiles(id) ON DELETE CASCADE,
+    preferred_work_type VARCHAR(20)[], -- ['full_time', 'part_time', 'temporary']
+    preferred_locations TEXT[],
+    min_hourly_rate INTEGER,
+    max_hourly_rate INTEGER,
+    preferred_work_days VARCHAR(10)[], -- ['monday', 'tuesday', ...]
+    preferred_work_hours_start TIME,
+    preferred_work_hours_end TIME,
+    transportation_allowance_required BOOLEAN DEFAULT FALSE,
+    parking_required BOOLEAN DEFAULT FALSE,
+    other_requirements TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- 3. 薬局関連テーブル
+-- ========================================
+
+-- 薬局プロフィールテーブル
+CREATE TABLE pharmacy_profiles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    pharmacy_name VARCHAR(100) NOT NULL,
+    pharmacy_name_kana VARCHAR(100),
+    representative_name VARCHAR(100),
+    phone VARCHAR(20),
+    fax VARCHAR(20),
+    postal_code VARCHAR(10),
+    prefecture VARCHAR(20),
+    city VARCHAR(50),
+    address VARCHAR(255),
+    nearest_station VARCHAR(100),
+    business_hours_start TIME,
+    business_hours_end TIME,
+    closed_days VARCHAR(10)[],
+    established_date DATE,
+    daily_prescription_count INTEGER,
+    staff_count INTEGER,
+    description TEXT,
+    features TEXT[],
+    facilities TEXT[],
+    website_url VARCHAR(500),
+    profile_image_url VARCHAR(500),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- 4. 求人関連テーブル
+-- ========================================
+
+-- 求人ステータスの列挙型
+CREATE TYPE job_status_enum AS ENUM ('draft', 'active', 'paused', 'closed', 'expired');
+
+-- 雇用形態の列挙型
+CREATE TYPE employment_type_enum AS ENUM ('full_time', 'part_time', 'temporary', 'contract');
+
+-- 求人テーブル
+CREATE TABLE job_postings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    pharmacy_id UUID REFERENCES pharmacy_profiles(id) ON DELETE CASCADE,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    employment_type employment_type_enum NOT NULL,
+    min_hourly_rate INTEGER,
+    max_hourly_rate INTEGER,
+    monthly_salary_min INTEGER,
+    monthly_salary_max INTEGER,
+    work_location VARCHAR(255),
+    work_days VARCHAR(10)[],
+    work_hours_start TIME,
+    work_hours_end TIME,
+    break_time_minutes INTEGER,
+    transportation_allowance BOOLEAN DEFAULT FALSE,
+    parking_available BOOLEAN DEFAULT FALSE,
+    uniform_provided BOOLEAN DEFAULT FALSE,
+    requirements TEXT,
+    benefits TEXT[],
+    application_deadline DATE,
+    status job_status_enum DEFAULT 'draft',
+    max_applicants INTEGER,
+    current_applicants INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- 5. 応募関連テーブル
+-- ========================================
+
+-- 応募ステータスの列挙型
+CREATE TYPE application_status_enum AS ENUM ('pending', 'under_review', 'interview_scheduled', 'accepted', 'rejected', 'withdrawn');
+
+-- 応募テーブル
+CREATE TABLE job_applications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    job_posting_id UUID REFERENCES job_postings(id) ON DELETE CASCADE,
+    pharmacist_id UUID REFERENCES pharmacist_profiles(id) ON DELETE CASCADE,
+    cover_letter TEXT,
+    status application_status_enum DEFAULT 'pending',
+    applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    reviewed_at TIMESTAMP WITH TIME ZONE,
+    interview_scheduled_at TIMESTAMP WITH TIME ZONE,
+    decision_made_at TIMESTAMP WITH TIME ZONE,
+    rejection_reason TEXT,
+    notes TEXT,
+    UNIQUE(job_posting_id, pharmacist_id)
+);
+
+-- ========================================
+-- 6. メッセージ関連テーブル
+-- ========================================
+
+-- メッセージスレッドテーブル
+CREATE TABLE message_threads (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    application_id UUID REFERENCES job_applications(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- メッセージテーブル
+CREATE TABLE messages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    thread_id UUID REFERENCES message_threads(id) ON DELETE CASCADE,
+    sender_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    read_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- 7. 勤務関連テーブル
+-- ========================================
+
+-- 勤務契約テーブル
+CREATE TABLE work_contracts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    application_id UUID REFERENCES job_applications(id) ON DELETE CASCADE,
+    pharmacist_id UUID REFERENCES pharmacist_profiles(id) ON DELETE CASCADE,
+    pharmacy_id UUID REFERENCES pharmacy_profiles(id) ON DELETE CASCADE,
+    contract_start_date DATE NOT NULL,
+    contract_end_date DATE,
+    hourly_rate INTEGER NOT NULL,
+    work_days VARCHAR(10)[],
+    work_hours_start TIME NOT NULL,
+    work_hours_end TIME NOT NULL,
+    break_time_minutes INTEGER DEFAULT 60,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 勤務スケジュールテーブル
+CREATE TABLE work_schedules (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    contract_id UUID REFERENCES work_contracts(id) ON DELETE CASCADE,
+    work_date DATE NOT NULL,
+    scheduled_start_time TIME NOT NULL,
+    scheduled_end_time TIME NOT NULL,
+    break_time_minutes INTEGER DEFAULT 60,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(contract_id, work_date)
+);
+
+-- 勤怠記録テーブル
+CREATE TABLE attendance_records (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    schedule_id UUID REFERENCES work_schedules(id) ON DELETE CASCADE,
+    actual_start_time TIMESTAMP WITH TIME ZONE,
+    actual_end_time TIMESTAMP WITH TIME ZONE,
+    break_start_time TIMESTAMP WITH TIME ZONE,
+    break_end_time TIMESTAMP WITH TIME ZONE,
+    total_work_minutes INTEGER,
+    overtime_minutes INTEGER DEFAULT 0,
+    notes TEXT,
+    is_approved BOOLEAN DEFAULT FALSE,
+    approved_by UUID REFERENCES users(id),
+    approved_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- 8. 通知関連テーブル
+-- ========================================
+
+-- 通知タイプの列挙型
+CREATE TYPE notification_type_enum AS ENUM ('application_received', 'application_status_changed', 'message_received', 'schedule_reminder', 'system_notification');
+
+-- 通知テーブル
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    type notification_type_enum NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    read_at TIMESTAMP WITH TIME ZONE,
+    related_id UUID, -- 関連するレコードのID（application_id, message_id等）
+    action_url VARCHAR(500),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- 9. システム管理テーブル
+-- ========================================
+
+-- 利用規約テーブル
+CREATE TABLE terms_of_service (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    version VARCHAR(20) NOT NULL UNIQUE,
+    content TEXT NOT NULL,
+    effective_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 利用規約同意記録テーブル
+CREATE TABLE terms_agreements (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    terms_id UUID REFERENCES terms_of_service(id) ON DELETE CASCADE,
+    agreed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    ip_address INET,
+    user_agent TEXT,
+    UNIQUE(user_id, terms_id)
+);
+
+-- ========================================
+-- 10. インデックス作成
+-- ========================================
+
+-- ユーザーテーブルのインデックス
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_user_type ON users(user_type);
+CREATE INDEX idx_users_created_at ON users(created_at);
+
+-- 薬剤師プロフィールのインデックス
+CREATE INDEX idx_pharmacist_profiles_user_id ON pharmacist_profiles(user_id);
+CREATE INDEX idx_pharmacist_profiles_prefecture ON pharmacist_profiles(prefecture);
+
+-- 薬局プロフィールのインデックス
+CREATE INDEX idx_pharmacy_profiles_user_id ON pharmacy_profiles(user_id);
+CREATE INDEX idx_pharmacy_profiles_prefecture ON pharmacy_profiles(prefecture);
+
+-- 求人のインデックス
+CREATE INDEX idx_job_postings_pharmacy_id ON job_postings(pharmacy_id);
+CREATE INDEX idx_job_postings_status ON job_postings(status);
+CREATE INDEX idx_job_postings_employment_type ON job_postings(employment_type);
+CREATE INDEX idx_job_postings_created_at ON job_postings(created_at);
+
+-- 応募のインデックス
+CREATE INDEX idx_job_applications_job_posting_id ON job_applications(job_posting_id);
+CREATE INDEX idx_job_applications_pharmacist_id ON job_applications(pharmacist_id);
+CREATE INDEX idx_job_applications_status ON job_applications(status);
+CREATE INDEX idx_job_applications_applied_at ON job_applications(applied_at);
+
+-- メッセージのインデックス
+CREATE INDEX idx_messages_thread_id ON messages(thread_id);
+CREATE INDEX idx_messages_sender_id ON messages(sender_id);
+CREATE INDEX idx_messages_created_at ON messages(created_at);
+
+-- 勤務関連のインデックス
+CREATE INDEX idx_work_schedules_contract_id ON work_schedules(contract_id);
+CREATE INDEX idx_work_schedules_work_date ON work_schedules(work_date);
+CREATE INDEX idx_attendance_records_schedule_id ON attendance_records(schedule_id);
+
+-- 通知のインデックス
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX idx_notifications_is_read ON notifications(is_read);
+CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+
+-- ========================================
+-- 11. トリガー関数（updated_at自動更新）
+-- ========================================
+
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- 各テーブルにupdated_atトリガーを設定
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_pharmacist_profiles_updated_at BEFORE UPDATE ON pharmacist_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_pharmacist_preferences_updated_at BEFORE UPDATE ON pharmacist_preferences FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_pharmacy_profiles_updated_at BEFORE UPDATE ON pharmacy_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_job_postings_updated_at BEFORE UPDATE ON job_postings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_message_threads_updated_at BEFORE UPDATE ON message_threads FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_work_contracts_updated_at BEFORE UPDATE ON work_contracts FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_work_schedules_updated_at BEFORE UPDATE ON work_schedules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_attendance_records_updated_at BEFORE UPDATE ON attendance_records FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ========================================
+-- 12. 初期データ投入
+-- ========================================
+
+-- 利用規約の初期バージョン
+INSERT INTO terms_of_service (version, content, effective_date) VALUES 
+('1.0', 'サービス利用規約（初期バージョン）...', CURRENT_TIMESTAMP);
+
+COMMIT;

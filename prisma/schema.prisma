@@ -1,0 +1,432 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                                                               String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email                                                            String                  @unique @db.VarChar(255)
+  password_hash                                                    String                  @db.VarChar(255)
+  user_type                                                        user_type_enum
+  is_verified                                                      Boolean?                @default(false)
+  verification_token                                               String?                 @db.VarChar(255)
+  reset_password_token                                             String?                 @db.VarChar(255)
+  reset_password_expires                                           DateTime?               @db.Timestamp(6)
+  created_at                                                       DateTime?               @default(now()) @db.Timestamptz(6)
+  updated_at                                                       DateTime?               @default(now()) @db.Timestamptz(6)
+  last_login                                                       DateTime?               @db.Timestamptz(6)
+  line_user_id                                                     String?                 @unique @db.VarChar(255)
+  auth_provider                                                    String?                 @default("email") @db.VarChar(20)
+  attendance_logs                                                  attendance_logs[]
+  attendance_records                                               attendance_records[]
+  messages                                                         messages[]
+  monthly_summaries_monthly_summaries_approved_byTousers           monthly_summaries[]     @relation("monthly_summaries_approved_byTousers")
+  monthly_summaries_monthly_summaries_user_idTousers               monthly_summaries[]     @relation("monthly_summaries_user_idTousers")
+  notifications                                                    notifications[]
+  pharmacist_profiles                                              pharmacist_profiles[]
+  pharmacy_profiles                                                pharmacy_profiles[]
+  terms_agreements                                                 terms_agreements[]
+  work_contracts_simple_work_contracts_simple_pharmacist_idTousers work_contracts_simple[] @relation("work_contracts_simple_pharmacist_idTousers")
+  work_contracts_simple_work_contracts_simple_pharmacy_idTousers   work_contracts_simple[] @relation("work_contracts_simple_pharmacy_idTousers")
+
+  @@index([created_at], map: "idx_users_created_at")
+  @@index([email], map: "idx_users_email")
+  @@index([line_user_id], map: "idx_users_line_user_id")
+  @@index([user_type], map: "idx_users_user_type")
+  @@map("users")
+}
+
+model attendance_logs {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id        String?   @db.Uuid
+  log_date       DateTime  @db.Date
+  check_in_time  DateTime? @db.Timestamptz(6)
+  check_out_time DateTime? @db.Timestamptz(6)
+  work_minutes   Int?
+  break_minutes  Int?      @default(0)
+  notes          String?
+  status         String?   @default("working") @db.VarChar(20)
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime? @default(now()) @db.Timestamptz(6)
+  users          User?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, log_date])
+  @@index([log_date], map: "idx_attendance_logs_date")
+  @@index([status], map: "idx_attendance_logs_status")
+  @@index([user_id], map: "idx_attendance_logs_user_id")
+}
+
+model attendance_records {
+  id                 String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  schedule_id        String?         @db.Uuid
+  actual_start_time  DateTime?       @db.Timestamptz(6)
+  actual_end_time    DateTime?       @db.Timestamptz(6)
+  break_start_time   DateTime?       @db.Timestamptz(6)
+  break_end_time     DateTime?       @db.Timestamptz(6)
+  total_work_minutes Int?
+  overtime_minutes   Int?            @default(0)
+  notes              String?
+  is_approved        Boolean?        @default(false)
+  approved_by        String?         @db.Uuid
+  approved_at        DateTime?       @db.Timestamptz(6)
+  created_at         DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?       @default(now()) @db.Timestamptz(6)
+  users              User?           @relation(fields: [approved_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  work_schedules     work_schedules? @relation(fields: [schedule_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([schedule_id], map: "idx_attendance_records_schedule_id")
+}
+
+model job_applications {
+  id                     String                   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  job_posting_id         String?                  @db.Uuid
+  pharmacist_id          String?                  @db.Uuid
+  cover_letter           String?
+  status                 application_status_enum? @default(pending)
+  applied_at             DateTime?                @default(now()) @db.Timestamptz(6)
+  reviewed_at            DateTime?                @db.Timestamptz(6)
+  interview_scheduled_at DateTime?                @db.Timestamptz(6)
+  decision_made_at       DateTime?                @db.Timestamptz(6)
+  rejection_reason       String?
+  notes                  String?
+  job_postings           job_postings?            @relation(fields: [job_posting_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  pharmacist_profiles    pharmacist_profiles?     @relation(fields: [pharmacist_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  message_threads        message_threads[]
+  work_contracts         work_contracts[]
+
+  @@unique([job_posting_id, pharmacist_id])
+  @@index([applied_at], map: "idx_job_applications_applied_at")
+  @@index([job_posting_id], map: "idx_job_applications_job_posting_id")
+  @@index([pharmacist_id], map: "idx_job_applications_pharmacist_id")
+  @@index([status], map: "idx_job_applications_status")
+}
+
+model job_postings {
+  id                       String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  pharmacy_id              String?              @db.Uuid
+  title                    String               @db.VarChar(200)
+  description              String?
+  employment_type          employment_type_enum
+  min_hourly_rate          Int?
+  max_hourly_rate          Int?
+  monthly_salary_min       Int?
+  monthly_salary_max       Int?
+  work_location            String?              @db.VarChar(255)
+  work_days                String[]             @db.VarChar(10)
+  work_hours_start         DateTime?            @db.Time(6)
+  work_hours_end           DateTime?            @db.Time(6)
+  break_time_minutes       Int?
+  transportation_allowance Boolean?             @default(false)
+  parking_available        Boolean?             @default(false)
+  uniform_provided         Boolean?             @default(false)
+  requirements             String?
+  benefits                 String[]
+  application_deadline     DateTime?            @db.Date
+  status                   job_status_enum?     @default(draft)
+  max_applicants           Int?
+  current_applicants       Int?                 @default(0)
+  created_at               DateTime?            @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime?            @default(now()) @db.Timestamptz(6)
+  daily_rate               Int?
+  scheduled_work_days      Int[]                @default([])
+  suggested_start_date     DateTime?            @db.Date
+  contract_duration_days   Int?                 @default(30)
+  job_applications         job_applications[]
+  pharmacy_profiles        pharmacy_profiles?   @relation(fields: [pharmacy_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at], map: "idx_job_postings_created_at")
+  @@index([employment_type], map: "idx_job_postings_employment_type")
+  @@index([pharmacy_id], map: "idx_job_postings_pharmacy_id")
+  @@index([status], map: "idx_job_postings_status")
+}
+
+model message_threads {
+  id               String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  application_id   String?           @db.Uuid
+  created_at       DateTime?         @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime?         @default(now()) @db.Timestamptz(6)
+  is_active        Boolean?          @default(true)
+  job_applications job_applications? @relation(fields: [application_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  messages         messages[]
+}
+
+model messages {
+  id              String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  thread_id       String?          @db.Uuid
+  sender_id       String?          @db.Uuid
+  content         String
+  is_read         Boolean?         @default(false)
+  read_at         DateTime?        @db.Timestamptz(6)
+  created_at      DateTime?        @default(now()) @db.Timestamptz(6)
+  users           User?            @relation(fields: [sender_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  message_threads message_threads? @relation(fields: [thread_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at], map: "idx_messages_created_at")
+  @@index([sender_id], map: "idx_messages_sender_id")
+  @@index([thread_id], map: "idx_messages_thread_id")
+}
+
+model monthly_summaries {
+  id                                         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id                                    String?   @db.Uuid
+  year                                       Int
+  month                                      Int
+  total_work_minutes                         Int?      @default(0)
+  total_work_days                            Int?      @default(0)
+  hourly_rate                                Int?
+  total_salary                               Int?
+  overtime_minutes                           Int?      @default(0)
+  status                                     String?   @default("draft") @db.VarChar(20)
+  approved_by                                String?   @db.Uuid
+  approved_at                                DateTime? @db.Timestamptz(6)
+  created_at                                 DateTime? @default(now()) @db.Timestamptz(6)
+  users_monthly_summaries_approved_byTousers User?     @relation("monthly_summaries_approved_byTousers", fields: [approved_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_monthly_summaries_user_idTousers     User?     @relation("monthly_summaries_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, year, month])
+  @@index([status], map: "idx_monthly_summaries_status")
+  @@index([user_id], map: "idx_monthly_summaries_user_id")
+  @@index([year, month], map: "idx_monthly_summaries_year_month")
+}
+
+model notifications {
+  id         String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id    String?                @db.Uuid
+  type       notification_type_enum
+  title      String                 @db.VarChar(200)
+  message    String
+  is_read    Boolean?               @default(false)
+  read_at    DateTime?              @db.Timestamptz(6)
+  related_id String?                @db.Uuid
+  action_url String?                @db.VarChar(500)
+  created_at DateTime?              @default(now()) @db.Timestamptz(6)
+  users      User?                  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at], map: "idx_notifications_created_at")
+  @@index([is_read], map: "idx_notifications_is_read")
+  @@index([user_id], map: "idx_notifications_user_id")
+}
+
+model pharmacist_preferences {
+  id                                String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  pharmacist_id                     String?              @db.Uuid
+  preferred_work_type               String[]             @db.VarChar(20)
+  preferred_locations               String[]
+  min_hourly_rate                   Int?
+  max_hourly_rate                   Int?
+  preferred_work_days               String[]             @db.VarChar(10)
+  preferred_work_hours_start        DateTime?            @db.Time(6)
+  preferred_work_hours_end          DateTime?            @db.Time(6)
+  transportation_allowance_required Boolean?             @default(false)
+  parking_required                  Boolean?             @default(false)
+  other_requirements                String?
+  created_at                        DateTime?            @default(now()) @db.Timestamptz(6)
+  updated_at                        DateTime?            @default(now()) @db.Timestamptz(6)
+  pharmacist_profiles               pharmacist_profiles? @relation(fields: [pharmacist_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model pharmacist_profiles {
+  id                       String                   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id                  String?                  @db.Uuid
+  first_name               String                   @db.VarChar(50)
+  last_name                String                   @db.VarChar(50)
+  first_name_kana          String?                  @db.VarChar(50)
+  last_name_kana           String?                  @db.VarChar(50)
+  birth_date               DateTime?                @db.Date
+  gender                   String?                  @db.VarChar(10)
+  phone                    String?                  @db.VarChar(20)
+  postal_code              String?                  @db.VarChar(10)
+  prefecture               String?                  @db.VarChar(20)
+  city                     String?                  @db.VarChar(50)
+  address                  String?                  @db.VarChar(255)
+  nearest_station          String?                  @db.VarChar(100)
+  license_number           String?                  @db.VarChar(50)
+  license_issued_date      DateTime?                @db.Date
+  graduation_university    String?                  @db.VarChar(100)
+  graduation_year          Int?
+  experience_years         Int?
+  specialties              String[]
+  bio                      String?
+  profile_image_url        String?                  @db.VarChar(500)
+  resume_url               String?                  @db.VarChar(500)
+  certificates_urls        String[]
+  created_at               DateTime?                @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime?                @default(now()) @db.Timestamptz(6)
+  has_drivers_license      Boolean?
+  has_home_care_experience Boolean?
+  license_file_path        String?                  @db.VarChar(500)
+  registration_file_path   String?                  @db.VarChar(500)
+  license_uploaded_at      DateTime?                @db.Timestamptz(6)
+  registration_uploaded_at DateTime?                @db.Timestamptz(6)
+  verification_status      String?                  @default("pending") @db.VarChar(20)
+  verified_at              DateTime?                @db.Timestamptz(6)
+  job_applications         job_applications[]
+  pharmacist_preferences   pharmacist_preferences[]
+  users                    User?                    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  work_contracts           work_contracts[]
+
+  @@index([prefecture], map: "idx_pharmacist_profiles_prefecture")
+  @@index([user_id], map: "idx_pharmacist_profiles_user_id")
+}
+
+model pharmacy_profiles {
+  id                       String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id                  String?          @db.Uuid
+  pharmacy_name            String           @db.VarChar(100)
+  pharmacy_name_kana       String?          @db.VarChar(100)
+  representative_name      String?          @db.VarChar(100)
+  phone                    String?          @db.VarChar(20)
+  fax                      String?          @db.VarChar(20)
+  postal_code              String?          @db.VarChar(10)
+  prefecture               String?          @db.VarChar(20)
+  city                     String?          @db.VarChar(50)
+  address                  String?          @db.VarChar(255)
+  nearest_station          String?          @db.VarChar(100)
+  business_hours_start     DateTime?        @db.Time(6)
+  business_hours_end       DateTime?        @db.Time(6)
+  closed_days              String[]         @db.VarChar(10)
+  established_date         DateTime?        @db.Date
+  daily_prescription_count Int?
+  staff_count              Int?
+  description              String?
+  features                 String[]
+  facilities               String[]
+  website_url              String?          @db.VarChar(500)
+  profile_image_url        String?          @db.VarChar(500)
+  created_at               DateTime?        @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime?        @default(now()) @db.Timestamptz(6)
+  job_postings             job_postings[]
+  users                    User?            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  work_contracts           work_contracts[]
+
+  @@index([prefecture], map: "idx_pharmacy_profiles_prefecture")
+  @@index([user_id], map: "idx_pharmacy_profiles_user_id")
+}
+
+model terms_agreements {
+  id               String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id          String?           @db.Uuid
+  terms_id         String?           @db.Uuid
+  agreed_at        DateTime?         @default(now()) @db.Timestamptz(6)
+  ip_address       String?           @db.Inet
+  user_agent       String?
+  terms_of_service terms_of_service? @relation(fields: [terms_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users            User?             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, terms_id])
+}
+
+model terms_of_service {
+  id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  version          String             @unique @db.VarChar(20)
+  content          String
+  effective_date   DateTime           @db.Timestamptz(6)
+  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  terms_agreements terms_agreements[]
+}
+
+model work_contracts {
+  id                  String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  application_id      String?              @db.Uuid
+  pharmacist_id       String?              @db.Uuid
+  pharmacy_id         String?              @db.Uuid
+  contract_start_date DateTime?            @db.Date
+  contract_end_date   DateTime?            @db.Date
+  hourly_rate         Int?
+  work_days           String[]             @db.VarChar(10)
+  work_hours_start    DateTime?            @db.Time(6)
+  work_hours_end      DateTime?            @db.Time(6)
+  break_time_minutes  Int?                 @default(60)
+  is_active           Boolean?             @default(true)
+  created_at          DateTime?            @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime?            @default(now()) @db.Timestamptz(6)
+  accepted_at         DateTime?            @db.Timestamptz(6)
+  offer_sent_at       DateTime?            @db.Timestamptz(6)
+  rejected_at         DateTime?            @db.Timestamptz(6)
+  status              String?              @default("pending")
+  terms               String?
+  daily_rate          Int?
+  scheduled_work_days Int[]                @default([])
+  job_applications    job_applications?    @relation(fields: [application_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  pharmacist_profiles pharmacist_profiles? @relation(fields: [pharmacist_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  pharmacy_profiles   pharmacy_profiles?   @relation(fields: [pharmacy_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  work_schedules      work_schedules[]
+}
+
+model work_contracts_simple {
+  id                                               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  pharmacist_id                                    String?   @db.Uuid
+  pharmacy_id                                      String?   @db.Uuid
+  hourly_rate                                      Int
+  effective_from                                   DateTime  @db.Date
+  effective_until                                  DateTime? @db.Date
+  is_active                                        Boolean?  @default(true)
+  created_at                                       DateTime? @default(now()) @db.Timestamptz(6)
+  users_work_contracts_simple_pharmacist_idTousers User?     @relation("work_contracts_simple_pharmacist_idTousers", fields: [pharmacist_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_work_contracts_simple_pharmacy_idTousers   User?     @relation("work_contracts_simple_pharmacy_idTousers", fields: [pharmacy_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([is_active], map: "idx_work_contracts_active")
+  @@index([pharmacist_id], map: "idx_work_contracts_pharmacist_id")
+  @@index([pharmacy_id], map: "idx_work_contracts_pharmacy_id")
+}
+
+model work_schedules {
+  id                   String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  contract_id          String?              @db.Uuid
+  work_date            DateTime             @db.Date
+  scheduled_start_time DateTime             @db.Time(6)
+  scheduled_end_time   DateTime             @db.Time(6)
+  break_time_minutes   Int?                 @default(60)
+  notes                String?
+  created_at           DateTime?            @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime?            @default(now()) @db.Timestamptz(6)
+  attendance_records   attendance_records[]
+  work_contracts       work_contracts?      @relation(fields: [contract_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([contract_id, work_date])
+  @@index([contract_id], map: "idx_work_schedules_contract_id")
+  @@index([work_date], map: "idx_work_schedules_work_date")
+}
+
+enum application_status_enum {
+  pending
+  under_review
+  interview_scheduled
+  accepted
+  rejected
+  withdrawn
+}
+
+enum employment_type_enum {
+  full_time
+  part_time
+  temporary
+  contract
+}
+
+enum job_status_enum {
+  draft
+  active
+  paused
+  closed
+  expired
+}
+
+enum notification_type_enum {
+  application_received
+  application_status_changed
+  message_received
+  schedule_reminder
+  system_notification
+  contract_offer
+  contract_signed
+}
+
+enum user_type_enum {
+  pharmacist
+  pharmacy
+}

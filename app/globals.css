@@ -24,3 +24,56 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* React Calendar Custom Styles */
+.pharmacy-calendar .react-calendar {
+  width: 100%;
+  border: none;
+  font-family: inherit;
+}
+
+.pharmacy-calendar .react-calendar__tile {
+  padding: 1rem 0.5rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+
+.pharmacy-calendar .react-calendar__tile:enabled:hover {
+  background: #f3f4f6;
+}
+
+.pharmacy-calendar .react-calendar__tile--now {
+  background: #fef3c7;
+}
+
+.pharmacy-calendar .react-calendar__tile--active {
+  background: #dbeafe;
+}
+
+.pharmacy-calendar .schedule-day {
+  background: #bfdbfe !important;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.pharmacy-calendar .schedule-day:hover {
+  background: #93c5fd !important;
+}
+
+.pharmacy-calendar .react-calendar__navigation button {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem;
+}
+
+.pharmacy-calendar .react-calendar__month-view__weekdays {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.pharmacy-calendar .react-calendar__month-view__days__day--weekend {
+  color: #dc2626;
+}

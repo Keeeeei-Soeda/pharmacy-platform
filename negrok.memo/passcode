@@ -1,0 +1,32 @@
+8QAEXU9R4Q
+VPK66ZNBYA
+YDT83KS82Y
+DWWUQGT52P
+HAQTUUTVJU
+ZFF237YAJC
+KHQ23MUJ39
+79HGG7KYPB
+XEDY24NUKS
+VEK6NV9X87
+
+
+ngrok config add-authtoken 33KEmV6fanO3vJs45HwLs651XgV_8XVLuhGgHwe8DqJx4GeT
+
+ngrok                                (Ctrl+C to quit)
+                                                     
+🧱 Block threats before they reach your services with
+                                                     
+Session Status                online                 
+Account                       k.soeda.mediforce@gmail
+Version                       3.30.0                 
+Region                        Japan (jp)             
+Latency                       22ms                   
+Web Interface                 http://127.0.0.1:4040  
+Forwarding                    https://danelle-nonprod
+                                                     
+Connections                   ttl     opn     rt1    
+                              0       0       0.00   
+                                                     
+                                                     
+
+                                                     
