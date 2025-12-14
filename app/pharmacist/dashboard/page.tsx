@@ -68,7 +68,18 @@ interface WorkingPharmacy {
 
 export default function PharmacistDashboard() {
   const router = useRouter();
-  const [activeMenu, setActiveMenu] = useState<ActiveMenu>('募集検索');
+  
+  // localStorageから前回のタブを復元（初回は'募集検索'）
+  const [activeMenu, setActiveMenu] = useState<ActiveMenu>(() => {
+    if (typeof window !== 'undefined') {
+      const savedMenu = localStorage.getItem('pharmacist_active_menu');
+      if (savedMenu && ['募集検索', 'メッセージ', '勤務中薬局', '出勤予定', 'プロフィール'].includes(savedMenu)) {
+        return savedMenu as ActiveMenu;
+      }
+    }
+    return '募集検索';
+  });
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
   
@@ -128,6 +139,13 @@ export default function PharmacistDashboard() {
     { id: '出勤予定' as ActiveMenu, label: '出勤予定カレンダー', icon: CalendarIcon },
     { id: 'プロフィール' as ActiveMenu, label: 'プロフィール', icon: User }
   ];
+
+  // activeMenuが変更されたらlocalStorageに保存
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pharmacist_active_menu', activeMenu);
+    }
+  }, [activeMenu]);
 
   // Fetch job listings and applications on mount
   useEffect(() => {
