@@ -53,7 +53,7 @@ import {
 import imageCompression from 'browser-image-compression';
 import type { JobPosting, JobApplication, MessageThread as APIMessageThread, Message } from '@/lib/api';
 
-type ActiveMenu = '募集検索' | 'メッセージ' | '契約管理' | '勤務中薬局' | '薬局情報' | '出勤予定' | 'プロフィール';
+type ActiveMenu = '募集検索' | 'メッセージ' | '勤務中薬局' | '出勤予定' | 'プロフィール';
 
 interface WorkingPharmacy {
   id: number;
@@ -124,9 +124,7 @@ export default function PharmacistDashboard() {
   const menuItems = [
     { id: '募集検索' as ActiveMenu, label: '薬局募集への応募', icon: Search },
     { id: 'メッセージ' as ActiveMenu, label: 'メッセージ', icon: Send },
-    { id: '契約管理' as ActiveMenu, label: '契約管理', icon: FileText },
     { id: '勤務中薬局' as ActiveMenu, label: '勤務中の薬局', icon: Building },
-    { id: '薬局情報' as ActiveMenu, label: '薬局情報・募集要項', icon: FileText },
     { id: '出勤予定' as ActiveMenu, label: '出勤予定カレンダー', icon: CalendarIcon },
     { id: 'プロフィール' as ActiveMenu, label: 'プロフィール', icon: User }
   ];
@@ -876,182 +874,6 @@ export default function PharmacistDashboard() {
           </div>
         );
 
-      case '契約管理':
-        return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-800">契約管理</h2>
-              <div className="text-sm text-gray-600">
-                {contracts.length}件の契約
-              </div>
-            </div>
-
-            {contracts.length === 0 ? (
-              <div className="bg-white rounded-lg shadow p-8 text-center">
-                <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-800 mb-2">契約がありません</h3>
-                <p className="text-gray-600">薬局から採用オファーが届くと、ここに表示されます</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">薬局名</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">求人タイトル</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作成日</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">アクション</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {contracts.map((contract) => {
-                      const statusMap: Record<string, { label: string; color: string }> = {
-                        'pending': { label: '承諾待ち', color: 'bg-yellow-100 text-yellow-800' },
-                        'active': { label: '契約中', color: 'bg-green-100 text-green-800' },
-                        'completed': { label: '完了', color: 'bg-blue-100 text-blue-800' },
-                        'terminated': { label: '終了', color: 'bg-gray-100 text-gray-800' },
-                        'rejected': { label: '辞退済み', color: 'bg-red-100 text-red-800' }
-                      };
-                      const statusInfo = statusMap[contract.status] || { label: contract.status, color: 'bg-gray-100 text-gray-800' };
-                      
-                      return (
-                        <tr key={contract.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {contract.pharmacy?.pharmacyName}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {contract.application?.jobPosting?.title || '求人情報なし'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusInfo.color}`}>
-                              {statusInfo.label}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(contract.createdAt).toLocaleDateString('ja-JP')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <button
-                              onClick={() => {
-                                setSelectedContract(contract);
-                                setShowContractDetail(true);
-                              }}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              詳細を見る
-                            </button>
-                            {contract.status === 'pending' && (
-                              <>
-                                <button
-                                  onClick={() => handleAcceptOffer(contract.id)}
-                                  className="text-green-600 hover:text-green-900"
-                                >
-                                  承諾
-                                </button>
-                                <button
-                                  onClick={() => handleRejectOffer(contract.id)}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  辞退
-                                </button>
-                              </>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* 契約詳細モーダル */}
-            {showContractDetail && selectedContract && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-6">
-                      <h3 className="text-xl font-bold text-gray-800">契約詳細</h3>
-                      <button
-                        onClick={() => {
-                          setShowContractDetail(false);
-                          setSelectedContract(null);
-                        }}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        <X className="w-6 h-6" />
-                      </button>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <h4 className="font-medium text-gray-700 mb-2">薬局</h4>
-                          <p className="text-gray-900">{selectedContract.pharmacy?.pharmacyName}</p>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-700 mb-2">ステータス</h4>
-                          <p className="text-gray-900">{selectedContract.status}</p>
-                        </div>
-                      </div>
-
-                      {selectedContract.status === 'active' && selectedContract.terms && (
-                        <div>
-                          <h4 className="font-medium text-gray-700 mb-2">労働条件通知書</h4>
-                          <pre className="bg-gray-50 p-4 rounded-lg text-sm whitespace-pre-wrap font-mono">
-                            {selectedContract.terms}
-                          </pre>
-                        </div>
-                      )}
-
-                      {selectedContract.status === 'pending' && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                          <p className="text-yellow-800 text-sm mb-4">
-                            💡 この採用オファーを承諾すると労働条件通知書が発行されます。
-                          </p>
-                          <div className="flex space-x-3">
-                            <button
-                              onClick={() => {
-                                handleAcceptOffer(selectedContract.id);
-                                setShowContractDetail(false);
-                              }}
-                              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium"
-                            >
-                              承諾する
-                            </button>
-                            <button
-                              onClick={() => {
-                                handleRejectOffer(selectedContract.id);
-                                setShowContractDetail(false);
-                              }}
-                              className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-medium"
-                            >
-                              辞退する
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mt-6 flex justify-end">
-                      <button
-                        onClick={() => {
-                          setShowContractDetail(false);
-                          setSelectedContract(null);
-                        }}
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
-                      >
-                        閉じる
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-
       case '勤務中薬局':
         return (
           <div className="space-y-6">
@@ -1182,6 +1004,90 @@ export default function PharmacistDashboard() {
                 >
                   求人を探す
                 </button>
+              </div>
+            )}
+
+            {/* 契約詳細モーダル */}
+            {showContractDetail && selectedContract && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-6">
+                      <h3 className="text-xl font-bold text-gray-800">契約詳細</h3>
+                      <button
+                        onClick={() => {
+                          setShowContractDetail(false);
+                          setSelectedContract(null);
+                        }}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="w-6 h-6" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <h4 className="font-medium text-gray-700 mb-2">薬局</h4>
+                          <p className="text-gray-900">{selectedContract.pharmacy?.pharmacyName}</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-700 mb-2">ステータス</h4>
+                          <p className="text-gray-900">{selectedContract.status}</p>
+                        </div>
+                      </div>
+
+                      {selectedContract.status === 'active' && selectedContract.terms && (
+                        <div>
+                          <h4 className="font-medium text-gray-700 mb-2">労働条件通知書</h4>
+                          <pre className="bg-gray-50 p-4 rounded-lg text-sm whitespace-pre-wrap font-mono">
+                            {selectedContract.terms}
+                          </pre>
+                        </div>
+                      )}
+
+                      {selectedContract.status === 'pending' && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                          <p className="text-yellow-800 text-sm mb-4">
+                            💡 この採用オファーを承諾すると労働条件通知書が発行されます。
+                          </p>
+                          <div className="flex space-x-3">
+                            <button
+                              onClick={() => {
+                                handleAcceptOffer(selectedContract.id);
+                                setShowContractDetail(false);
+                              }}
+                              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium"
+                            >
+                              承諾する
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleRejectOffer(selectedContract.id);
+                                setShowContractDetail(false);
+                              }}
+                              className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-medium"
+                            >
+                              辞退する
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-6 flex justify-end">
+                      <button
+                        onClick={() => {
+                          setShowContractDetail(false);
+                          setSelectedContract(null);
+                        }}
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
+                      >
+                        閉じる
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -2247,11 +2153,11 @@ export default function PharmacistDashboard() {
             <button
               onClick={() => {
                 setShowOfferModal(false);
-                setActiveMenu('契約管理');
+                setActiveMenu('勤務中薬局');
               }}
               className="mt-4 w-full text-sm text-gray-600 hover:text-gray-800 underline"
             >
-              後で決める（契約管理画面で確認できます）
+              後で決める（勤務中の薬局画面で確認できます）
             </button>
           </div>
         </div>
