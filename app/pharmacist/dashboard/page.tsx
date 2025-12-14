@@ -460,18 +460,21 @@ export default function PharmacistDashboard() {
     return myApplications.some(app => app.jobPostingId === jobId);
   };
 
-  const workingPharmacies: WorkingPharmacy[] = [
-    {
-      id: 1,
-      name: 'みどり調剤薬局',
-      startDate: '2025-09-01',
-      workDays: ['月', '水', '金'],
-      timeSlot: '9:00-18:00',
-      hourlyRate: 2500,
-      totalHours: 96,
+  // 契約データから「勤務中の薬局」を生成（status === 'active' の契約のみ）
+  const workingPharmacies: WorkingPharmacy[] = contracts
+    .filter(contract => contract.status === 'active')
+    .map(contract => ({
+      id: parseInt(contract.id) || 0,
+      name: contract.pharmacy?.pharmacyName || '薬局名未設定',
+      startDate: contract.contractStartDate ? new Date(contract.contractStartDate).toISOString().split('T')[0] : '未定',
+      workDays: contract.workDays || [],
+      timeSlot: contract.workHoursStart && contract.workHoursEnd 
+        ? `${contract.workHoursStart} - ${contract.workHoursEnd}`
+        : '未定',
+      hourlyRate: contract.hourlyRate || 0,
+      totalHours: 0, // TODO: 実際の勤務時間データから算出
       status: '勤務中'
-    }
-  ];
+    }));
 
   const renderContent = () => {
     switch (activeMenu) {
@@ -1061,15 +1064,24 @@ export default function PharmacistDashboard() {
 
             {workingPharmacies.length > 0 ? (
               <div className="grid gap-6">
-                {workingPharmacies.map((pharmacy) => (
-                  <div key={pharmacy.id} className="bg-white rounded-lg shadow p-6">
+                {contracts.filter(c => c.status === 'active').map((contract) => (
+                  <div key={contract.id} className="bg-white rounded-lg shadow p-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-800">{pharmacy.name}</h3>
-                        <p className="text-gray-600">勤務開始日: {pharmacy.startDate}</p>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {contract.pharmacy?.pharmacyName || '薬局名未設定'}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {contract.pharmacy?.prefecture} {contract.pharmacy?.city}
+                        </p>
+                        <p className="text-gray-600 mt-1">
+                          勤務開始日: {contract.contractStartDate 
+                            ? new Date(contract.contractStartDate).toLocaleDateString('ja-JP')
+                            : '未定'}
+                        </p>
                       </div>
                       <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm self-start">
-                        {pharmacy.status}
+                        勤務中
                       </span>
                     </div>
                     
@@ -1077,36 +1089,83 @@ export default function PharmacistDashboard() {
                       <div>
                         <h4 className="font-medium mb-2">勤務条件</h4>
                         <div className="space-y-1 text-sm text-gray-600">
-                          <p>勤務曜日: {pharmacy.workDays.join('、')}</p>
-                          <p>勤務時間: {pharmacy.timeSlot}</p>
-                          <p>時給: ¥{pharmacy.hourlyRate.toLocaleString()}</p>
-                          <p>累計勤務時間: {pharmacy.totalHours}時間</p>
+                          <p>勤務曜日: {contract.workDays?.join('、') || '未定'}</p>
+                          <p>勤務時間: {contract.workHoursStart && contract.workHoursEnd 
+                            ? `${contract.workHoursStart} - ${contract.workHoursEnd}`
+                            : '未定'}</p>
+                          <p>時給: {contract.hourlyRate 
+                            ? `¥${contract.hourlyRate.toLocaleString()}`
+                            : '未定'}</p>
+                          <p>休憩時間: {contract.breakTimeMinutes 
+                            ? `${contract.breakTimeMinutes}分`
+                            : '未定'}</p>
                         </div>
                       </div>
                       
                       <div>
-                        <h4 className="font-medium mb-2">今月の勤務実績</h4>
+                        <h4 className="font-medium mb-2">契約情報</h4>
                         <div className="bg-gray-50 p-4 rounded-lg">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm text-gray-600">今月勤務時間</span>
-                            <span className="font-medium">16時間</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">今月収入</span>
-                            <span className="font-medium text-green-600">¥40,000</span>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">求人タイトル</span>
+                              <span className="font-medium text-right">
+                                {contract.application?.jobPosting?.title || '情報なし'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">契約ID</span>
+                              <span className="font-mono text-xs text-gray-500">
+                                {contract.id.substring(0, 8)}...
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">契約日</span>
+                              <span className="font-medium">
+                                {new Date(contract.createdAt).toLocaleDateString('ja-JP')}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                     
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2">
+                      <button 
+                        onClick={() => {
+                          setActiveMenu('出勤予定');
+                        }}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2"
+                      >
                         <Clock className="w-4 h-4" />
-                        <span>勤務時間を入力</span>
+                        <span>出勤予定を確認</span>
                       </button>
-                      <button className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-lg flex items-center justify-center space-x-2">
+                      <button 
+                        onClick={() => {
+                          // メッセージスレッドを検索して選択
+                          const thread = messageThreads.find(
+                            t => t.application?.id === contract.applicationId
+                          );
+                          if (thread) {
+                            setSelectedThread(thread);
+                            setActiveMenu('メッセージ');
+                          } else {
+                            alert('この契約に関連するメッセージスレッドが見つかりませんでした');
+                          }
+                        }}
+                        className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-lg flex items-center justify-center space-x-2"
+                      >
                         <MessageSquare className="w-4 h-4" />
                         <span>薬局とメッセージ</span>
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setSelectedContract(contract);
+                          setShowContractDetail(true);
+                        }}
+                        className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-lg flex items-center justify-center space-x-2"
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span>契約詳細</span>
                       </button>
                     </div>
                   </div>
