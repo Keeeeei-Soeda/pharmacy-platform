@@ -94,7 +94,7 @@ const sendMessage = async (req, res) => {
       'message_received',
       '新しいメッセージ',
       `${senderName}さんからメッセージが届きました`,
-      thread.application.id,
+      thread.job_applications.id,
       isPharmacist ? `/pharmacy/messages/${threadId}` : `/pharmacist/messages/${threadId}`
     );
 
