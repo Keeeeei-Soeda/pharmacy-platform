@@ -416,7 +416,7 @@ const getApplicationById = async (req, res) => {
     });
 
     const isApplicant = pharmacistProfile && pharmacistProfile.id === application.pharmacistId;
-    const isPharmacy = application.jobPosting.pharmacy.userId === userId;
+    const isPharmacy = application.job_postings.pharmacy_profiles.user_id === userId;
 
     if (!isApplicant && !isPharmacy) {
       return res.status(403).json({ error: 'この応募情報にアクセスする権限がありません' });
@@ -445,7 +445,7 @@ const acceptApplication = async (req, res) => {
           include: {
             pharmacy_profiles: {
               select: {
-                userId: true,
+                user_id: true,
                 pharmacy_name: true
               }
             }
@@ -467,8 +467,8 @@ const acceptApplication = async (req, res) => {
       return res.status(404).json({ error: '応募が見つかりません' });
     }
 
-    // 権限チェック
-    if (application.jobPosting.pharmacy.userId !== userId) {
+    // 権限チェック（Prisma生データはsnake_case）
+    if (application.job_postings.pharmacy_profiles.user_id !== userId) {
       return res.status(403).json({ error: 'この応募を承認する権限がありません' });
     }
 
@@ -494,10 +494,10 @@ const acceptApplication = async (req, res) => {
 
     // 薬剤師に通知
     await createNotification(
-      application.pharmacist.user.id,
+      application.pharmacist_profiles.users.id,
       'application_status_changed',
       '応募が承認されました',
-      `「${application.jobPosting.title}」の応募が承認されました。メッセージで詳細を確認してください。`,
+      `「${application.job_postings.title}」の応募が承認されました。メッセージで詳細を確認してください。`,
       id,
       `/pharmacist/applications/${id}`
     );
@@ -528,7 +528,7 @@ const rejectApplication = async (req, res) => {
           include: {
             pharmacy_profiles: {
               select: {
-                userId: true,
+                user_id: true,
                 pharmacy_name: true
               }
             }
@@ -550,8 +550,8 @@ const rejectApplication = async (req, res) => {
       return res.status(404).json({ error: '応募が見つかりません' });
     }
 
-    // 権限チェック
-    if (application.jobPosting.pharmacy.userId !== userId) {
+    // 権限チェック（Prisma生データはsnake_case）
+    if (application.job_postings.pharmacy_profiles.user_id !== userId) {
       return res.status(403).json({ error: 'この応募を拒否する権限がありません' });
     }
 
@@ -578,10 +578,10 @@ const rejectApplication = async (req, res) => {
 
     // 薬剤師に通知
     await createNotification(
-      application.pharmacist.user.id,
+      application.pharmacist_profiles.users.id,
       'application_status_changed',
       '応募結果のお知らせ',
-      `「${application.jobPosting.title}」の選考結果をご確認ください。`,
+      `「${application.job_postings.title}」の選考結果をご確認ください。`,
       id,
       `/pharmacist/applications/${id}`
     );
@@ -656,10 +656,10 @@ const withdrawApplication = async (req, res) => {
 
     // 薬局に通知
     await createNotification(
-      application.jobPosting.pharmacy.userId,
+      application.job_postings.pharmacy_profiles.user_id,
       'application_status_changed',
       '応募が取り下げられました',
-      `「${application.jobPosting.title}」への応募が取り下げられました。`,
+      `「${application.job_postings.title}」への応募が取り下げられました。`,
       id,
       `/pharmacy/applications/${id}`
     );
