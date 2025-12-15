@@ -6,6 +6,13 @@ export interface RegisterData {
   userType: 'pharmacist' | 'pharmacy';
   firstName?: string;
   lastName?: string;
+  phone?: string;
+  address?: string;
+  // 薬剤師固有
+  licenseNumber?: string;
+  experience?: string;
+  // 薬局固有
+  pharmacyName?: string;
 }
 
 export interface LoginData {

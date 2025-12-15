@@ -83,13 +83,26 @@ export default function RegisterPage() {
 
     try {
       // API call for registration
-      const response = await register({
+      const registrationData = {
         email: formData.email,
         password: formData.password,
         userType: formData.userType,
         firstName: formData.firstName,
         lastName: formData.lastName,
-      });
+        phone: formData.phone,
+        address: formData.address,
+        // 薬剤師の場合、免許番号と経験年数を追加
+        ...(formData.userType === 'pharmacist' && {
+          licenseNumber: formData.licenseNumber,
+          experience: formData.experience,
+        }),
+        // 薬局の場合、薬局名を追加
+        ...(formData.userType === 'pharmacy' && {
+          pharmacyName: formData.pharmacyName,
+        }),
+      };
+
+      const response = await register(registrationData);
       
       // Redirect to dashboard
       if (response.user.userType === 'pharmacist') {
