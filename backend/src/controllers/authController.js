@@ -31,6 +31,19 @@ const register = async (req, res) => {
       experience
     } = req.body;
 
+    // 🔍 デバッグログ：受信したデータを確認
+    console.log('📝 Registration data received:', {
+      email,
+      userType,
+      firstName,
+      lastName,
+      pharmacyName,
+      phone,
+      address,
+      licenseNumber: licenseNumber ? '***' : undefined,
+      experience
+    });
+
     // 入力値検証
     if (!email || !password || !userType) {
       return res.status(400).json({ 
