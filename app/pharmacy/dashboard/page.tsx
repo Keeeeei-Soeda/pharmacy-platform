@@ -1631,26 +1631,34 @@ export default function PharmacyDashboard() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h5 className="font-medium text-gray-800 mb-2">強み・特色</h5>
-                      <ul className="space-y-1">
-                        {pharmacyProfile.features.strengths.map((strength, index) => (
-                          <li key={index} className="text-sm text-gray-600 flex items-center">
-                            <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                            {strength}
-                          </li>
-                        ))}
-                      </ul>
+                      {profile?.features && profile.features.length > 0 ? (
+                        <ul className="space-y-1">
+                          {profile.features.map((feature, index) => (
+                            <li key={index} className="text-sm text-gray-600 flex items-center">
+                              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-gray-500">登録されていません</p>
+                      )}
                     </div>
                     
                     <div>
                       <h5 className="font-medium text-gray-800 mb-2">設備・システム</h5>
-                      <ul className="space-y-1">
-                        {pharmacyProfile.features.facilities.map((facility, index) => (
-                          <li key={index} className="text-sm text-gray-600 flex items-center">
-                            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                            {facility}
-                          </li>
-                        ))}
-                      </ul>
+                      {profile?.facilities && profile.facilities.length > 0 ? (
+                        <ul className="space-y-1">
+                          {profile.facilities.map((facility, index) => (
+                            <li key={index} className="text-sm text-gray-600 flex items-center">
+                              <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                              {facility}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-gray-500">登録されていません</p>
+                      )}
                     </div>
                   </div>
                 </div>
