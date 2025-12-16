@@ -149,6 +149,7 @@ export default function PharmacyDashboard() {
     fetchMessageThreads();
     fetchUnreadCount();
     fetchContracts();
+    fetchProfile(); // 🔧 初回ロード時にプロフィールも取得
   }, []);
 
   // Fetch messages when thread is selected
@@ -496,33 +497,7 @@ export default function PharmacyDashboard() {
     { id: 2, name: '鈴木 花音', position: 'パート', startDate: '2025-09-01', monthlyHours: 120, hourlyRate: 2200 }
   ];
 
-  const pharmacyProfile = {
-    basicInfo: {
-      name: 'さくら薬局 本店',
-      address: '大阪市中央区心斎橋1-1-1',
-      phone: '06-1234-5678',
-      email: 'info@sakura-pharmacy.co.jp',
-      businessHours: '9:00 - 19:00',
-      closedDays: '日曜日・祝日',
-      established: '2010年4月',
-      prescription: '約150枚/日'
-    },
-    workConditions: {
-      hourlyRateMin: 2500,
-      hourlyRateMax: 3500,
-      workTimeStart: '09:00',
-      workTimeEnd: '19:00',
-      breakTime: 60,
-      transportation: '全額支給',
-      parking: 'あり（無料）',
-      uniform: '貸与あり'
-    },
-    features: {
-      description: '地域に根ざした調剤薬局として、患者様一人ひとりに寄り添った服薬指導を心がけています。最新の調剤システムを導入し、効率的な業務環境を整備。スタッフ同士のコミュニケーションも良好で、働きやすい職場環境を維持しています。',
-      strengths: ['最新調剤システム導入', 'アットホームな職場環境', '研修制度充実', '残業少なめ'],
-      facilities: ['電子薬歴システム', '分包機', 'レセプトコンピュータ', '調剤監査システム']
-    }
-  };
+  // ✅ ハードコードデータを削除: profileステートを使用
 
   const renderContent = () => {
     switch (activeMenu) {
@@ -1596,8 +1571,8 @@ export default function PharmacyDashboard() {
                     <Building className="w-8 h-8 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-800">{pharmacyProfile.basicInfo.name}</h3>
-                    <p className="text-gray-600">{pharmacyProfile.basicInfo.address}</p>
+                    <h3 className="text-xl font-semibold text-gray-800">{profile?.pharmacyName || '薬局名'}</h3>
+                    <p className="text-gray-600">{profile?.address || '住所'}</p>
                   </div>
                 </div>
 
@@ -1607,41 +1582,41 @@ export default function PharmacyDashboard() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">営業時間:</span>
-                        <span>{pharmacyProfile.basicInfo.businessHours}</span>
+                        <span>{profile?.businessHoursStart && profile?.businessHoursEnd ? `${profile.businessHoursStart} - ${profile.businessHoursEnd}` : '未設定'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">定休日:</span>
-                        <span>{pharmacyProfile.basicInfo.closedDays}</span>
+                        <span>{profile?.closedDays?.join(', ') || '未設定'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">設立:</span>
-                        <span>{pharmacyProfile.basicInfo.established}</span>
+                        <span>{profile?.establishedDate || '未設定'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">処方箋枚数:</span>
-                        <span>{pharmacyProfile.basicInfo.prescription}</span>
+                        <span>{profile?.dailyPrescriptionCount ? `約${profile.dailyPrescriptionCount}枚/日` : '未設定'}</span>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-gray-800 mb-3">勤務条件</h4>
+                    <h4 className="font-semibold text-gray-800 mb-3">基本情報（続き）</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">時給:</span>
-                        <span className="font-medium">¥{pharmacyProfile.workConditions.hourlyRateMin.toLocaleString()} - ¥{pharmacyProfile.workConditions.hourlyRateMax.toLocaleString()}</span>
+                        <span className="text-gray-600">電話番号:</span>
+                        <span>{profile?.phone || '未設定'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">勤務時間:</span>
-                        <span>{pharmacyProfile.workConditions.workTimeStart} - {pharmacyProfile.workConditions.workTimeEnd}</span>
+                        <span className="text-gray-600">FAX:</span>
+                        <span>{profile?.fax || '未設定'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">休憩:</span>
-                        <span>{pharmacyProfile.workConditions.breakTime}分</span>
+                        <span className="text-gray-600">最寄り駅:</span>
+                        <span>{profile?.nearestStation || '未設定'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">交通費:</span>
-                        <span>{pharmacyProfile.workConditions.transportation}</span>
+                        <span className="text-gray-600">スタッフ数:</span>
+                        <span>{profile?.staffCount ? `${profile.staffCount}名` : '未設定'}</span>
                       </div>
                     </div>
                   </div>
@@ -1650,7 +1625,7 @@ export default function PharmacyDashboard() {
                 <div>
                   <h4 className="font-semibold text-gray-800 mb-3">薬局の特徴</h4>
                   <p className="text-gray-700 text-sm mb-4">
-                    {pharmacyProfile.features.description}
+                    {profile?.description || '特徴は登録されていません'}
                   </p>
                   
                   <div className="grid md:grid-cols-2 gap-4">
@@ -1711,7 +1686,8 @@ export default function PharmacyDashboard() {
                   <input 
                     type="text" 
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.basicInfo.name}
+                    value={profileForm.pharmacyName || ''}
+                    onChange={(e) => setProfileForm({...profileForm, pharmacyName: e.target.value})}
                     required 
                   />
                 </div>
@@ -1720,7 +1696,8 @@ export default function PharmacyDashboard() {
                   <input 
                     type="text" 
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.basicInfo.address}
+                    value={profileForm.address || ''}
+                    onChange={(e) => setProfileForm({...profileForm, address: e.target.value})}
                     required 
                   />
                 </div>
@@ -1729,69 +1706,77 @@ export default function PharmacyDashboard() {
                   <input 
                     type="tel" 
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.basicInfo.phone}
+                    value={profileForm.phone || ''}
+                    onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">メールアドレス</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">FAX</label>
                   <input 
-                    type="email" 
+                    type="tel" 
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.basicInfo.email}
+                    value={profileForm.fax || ''}
+                    onChange={(e) => setProfileForm({...profileForm, fax: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">営業時間</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">営業開始時間</label>
                   <input 
-                    type="text" 
+                    type="time" 
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.basicInfo.businessHours}
+                    value={profileForm.businessHoursStart || ''}
+                    onChange={(e) => setProfileForm({...profileForm, businessHoursStart: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">定休日</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">営業終了時間</label>
                   <input 
-                    type="text" 
+                    type="time" 
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.basicInfo.closedDays}
+                    value={profileForm.businessHoursEnd || ''}
+                    onChange={(e) => setProfileForm({...profileForm, businessHoursEnd: e.target.value})}
                   />
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold mb-4">勤務条件</h3>
+              <h3 className="text-lg font-semibold mb-4">追加情報</h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">時給（最低）</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">最寄り駅</label>
+                  <input 
+                    type="text" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                    value={profileForm.nearestStation || ''}
+                    onChange={(e) => setProfileForm({...profileForm, nearestStation: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">設立日</label>
+                  <input 
+                    type="date" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                    value={profileForm.establishedDate || ''}
+                    onChange={(e) => setProfileForm({...profileForm, establishedDate: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">1日の処方箋枚数</label>
                   <input 
                     type="number" 
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.workConditions.hourlyRateMin}
+                    value={profileForm.dailyPrescriptionCount || ''}
+                    onChange={(e) => setProfileForm({...profileForm, dailyPrescriptionCount: parseInt(e.target.value)})}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">時給（最高）</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">スタッフ数</label>
                   <input 
                     type="number" 
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.workConditions.hourlyRateMax}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">勤務開始時間</label>
-                  <input 
-                    type="time" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.workConditions.workTimeStart}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">勤務終了時間</label>
-                  <input 
-                    type="time" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                    defaultValue={pharmacyProfile.workConditions.workTimeEnd}
+                    value={profileForm.staffCount || ''}
+                    onChange={(e) => setProfileForm({...profileForm, staffCount: parseInt(e.target.value)})}
                   />
                 </div>
               </div>
@@ -2287,7 +2272,7 @@ export default function PharmacyDashboard() {
         <div className="flex items-center justify-between p-6 border-b lg:justify-start">
           <div>
             <h1 className="text-xl font-bold text-gray-800">薬局管理システム</h1>
-            <p className="text-sm text-gray-600">さくら薬局 本店</p>
+            <p className="text-sm text-gray-600">{profile?.pharmacyName || '薬局名'}</p>
           </div>
           <button 
             onClick={() => setIsSidebarOpen(false)}
