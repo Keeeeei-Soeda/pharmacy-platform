@@ -1798,7 +1798,8 @@ export default function PharmacyDashboard() {
                   <textarea 
                     rows={4} 
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    defaultValue={pharmacyProfile.features.description}
+                    value={profileForm.description || ''}
+                    onChange={(e) => setProfileForm({...profileForm, description: e.target.value})}
                   ></textarea>
                 </div>
               </div>
