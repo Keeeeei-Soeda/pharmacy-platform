@@ -3,6 +3,8 @@ export * from './auth';
 export * from './jobs';
 export * from './applications';
 export * from './messages';
+export * from './structuredMessages';
+export * from './platformFees';
 export * from './contracts';
 export * from './schedules';
 export * from './uploads';

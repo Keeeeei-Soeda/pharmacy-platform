@@ -117,6 +117,7 @@ export async function resetPharmacistVerification(id: string): Promise<void> {
 // 証明書ファイルのURLを取得
 export function getAdminLicenseFileUrl(filename: string): string {
   const token = localStorage.getItem('auth_token');
-  return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/uploads/license/${filename}?token=${token}`;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+  return `${API_BASE_URL}/api/uploads/license/${filename}?token=${token}`;
 }
 

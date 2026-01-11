@@ -38,8 +38,10 @@ export async function uploadLicense(file: File, type: 'license' | 'registration'
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? (typeof window !== 'undefined' ? '' : 'http://localhost:3001');
+  
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/uploads/license`,
+    `${API_BASE_URL}/api/uploads/license`,
     {
       method: 'POST',
       headers,
@@ -64,7 +66,8 @@ export async function getLicenseInfo(): Promise<LicenseInfo> {
 // 証明書ファイルのURLを取得
 export function getLicenseFileUrl(filename: string): string {
   const token = localStorage.getItem('auth_token');
-  return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/uploads/license/${filename}?token=${token}`;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+  return `${API_BASE_URL}/api/uploads/license/${filename}?token=${token}`;
 }
 
 // 証明書を削除

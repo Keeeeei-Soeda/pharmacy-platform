@@ -17,14 +17,14 @@ export interface Message {
 
 export interface MessageThread {
   id: string;
-  applicationId: string;
+  applicationId: number;
   createdAt: string;
   updatedAt: string;
   application: {
-    id: string;
+    id: number;
     status: string;
     jobPosting?: {
-      id: string;
+      id: number;
       title: string;
       pharmacy?: {
         pharmacyName: string;
@@ -32,7 +32,7 @@ export interface MessageThread {
       };
     };
     pharmacist?: {
-      id: string;
+      id: number;
       firstName: string;
       lastName: string;
       profileImageUrl: string | null;

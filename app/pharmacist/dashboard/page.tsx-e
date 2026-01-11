@@ -2,13 +2,17 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 import { 
   Search, 
   FileText, 
+  Clock, 
   Bell,
   LogOut,
   MapPin,
   DollarSign,
+  Calendar as CalendarIcon,
   Building,
   User,
   Send,
@@ -34,18 +38,16 @@ import {
   getPharmacistContracts,
   acceptJobOffer,
   rejectJobOffer,
+  getPharmacistSchedules,
   uploadLicense,
   getLicenseInfo,
   deleteLicense,
   getPharmacistProfile,
   updatePharmacistProfile,
-  getStructuredMessages,
-  selectDate,
-  respondToOffer,
+  type WorkSchedule,
   type WorkContract,
   type LicenseInfo,
-  type PharmacistProfile,
-  type StructuredMessage
+  type PharmacistProfile
 } from '@/lib/api';
 import imageCompression from 'browser-image-compression';
 import type { JobPosting, JobApplication, MessageThread as APIMessageThread, Message } from '@/lib/api';
@@ -166,9 +168,13 @@ export default function PharmacistDashboard() {
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [pendingOffer, setPendingOffer] = useState<WorkContract | null>(null);
 
-  // Structured Message States
-  const [structuredMessages, setStructuredMessages] = useState<StructuredMessage[]>([]);
-  const [currentApplicationForMessages, setCurrentApplicationForMessages] = useState<number | null>(null);
+  // Schedule States
+  const [schedules, setSchedules] = useState<WorkSchedule[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
+  const [showScheduleDetail, setShowScheduleDetail] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<WorkSchedule | null>(null);
+  const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
 
   // Upload States
   const [licenseInfo, setLicenseInfo] = useState<LicenseInfo | null>(null);
@@ -348,6 +354,19 @@ export default function PharmacistDashboard() {
     }
   };
 
+  // スケジュール取得（薬剤師用：全契約のスケジュールを取得）
+  const fetchSchedules = async () => {
+    setIsLoadingSchedules(true);
+    try {
+      const scheduleData = await getPharmacistSchedules();
+      setSchedules(scheduleData || []);
+    } catch (err) {
+      console.error('Failed to fetch schedules:', err);
+      setSchedules([]);
+    } finally {
+      setIsLoadingSchedules(false);
+    }
+  };
 
   // 証明書情報取得
   const fetchLicenseInfo = async () => {
@@ -356,56 +375,6 @@ export default function PharmacistDashboard() {
       setLicenseInfo(info);
     } catch (err) {
       console.error('Failed to fetch license info:', err);
-    }
-  };
-
-  // 構造化メッセージ取得
-  const fetchStructuredMessages = async (applicationId: number) => {
-    try {
-      const messages = await getStructuredMessages(applicationId);
-      setStructuredMessages(messages);
-      setCurrentApplicationForMessages(applicationId);
-    } catch (err) {
-      console.error('Failed to fetch structured messages:', err);
-      setStructuredMessages([]);
-    }
-  };
-
-  // 日付を選択
-  const handleSelectDate = async (messageId: number, selectedDate: string) => {
-    if (!currentApplicationForMessages) return;
-    
-    try {
-      await selectDate({
-        messageId,
-        selectedDate
-      });
-      alert('日付を選択しました');
-      // メッセージを再取得
-      fetchStructuredMessages(currentApplicationForMessages);
-    } catch (err) {
-      console.error('Failed to select date:', err);
-      alert('日付選択に失敗しました');
-    }
-  };
-
-  // オファーに回答
-  const handleRespondToOffer = async (messageId: number, accepted: boolean) => {
-    if (!currentApplicationForMessages) return;
-    
-    try {
-      await respondToOffer({
-        messageId,
-        accepted
-      });
-      alert(accepted ? 'オファーを承諾しました' : 'オファーを辞退しました');
-      // メッセージを再取得
-      fetchStructuredMessages(currentApplicationForMessages);
-      // 契約も更新
-      fetchContracts();
-    } catch (err) {
-      console.error('Failed to respond to offer:', err);
-      alert('回答に失敗しました');
     }
   };
 
@@ -511,15 +480,10 @@ export default function PharmacistDashboard() {
     
     try {
       const response = await acceptJobOffer(contractId);
-      alert('🎉 採用オファーを承諾しました！\n\n労働条件通知書が発行されました。勤務中薬局の画面で確認できます。');
+      alert('採用オファーを承諾しました！労働条件通知書が発行されました。');
       setShowOfferModal(false);
       setPendingOffer(null);
-      
-      // 契約データを再取得
-      await fetchContracts();
-      
-      // 勤務中薬局画面に遷移
-      setActiveMenu('勤務中薬局');
+      fetchContracts();
       
       // Show work notice
       if (response.workNotice) {
@@ -556,7 +520,7 @@ export default function PharmacistDashboard() {
   };
 
   // Check if job is already applied
-  const isJobApplied = (jobId: number) => {
+  const isJobApplied = (jobId: string) => {
     return myApplications.some(app => app.jobPostingId === jobId);
   };
 
@@ -904,140 +868,7 @@ export default function PharmacistDashboard() {
                       <p className="text-sm text-gray-600">
                         {selectedThread.application?.jobPosting?.title}
                       </p>
-                      {selectedThread.application && (
-                        <button
-                          onClick={() => fetchStructuredMessages(selectedThread.application!.id)}
-                          className="mt-2 text-sm text-blue-600 hover:text-blue-800 underline"
-                        >
-                          📅 出勤日調整・オファー確認
-                        </button>
-                      )}
                     </div>
-                    
-                    {/* 構造化メッセージ表示 */}
-                    {currentApplicationForMessages === selectedThread.application?.id && structuredMessages.length > 0 && (
-                      <div className="p-4 bg-blue-50 border-b space-y-3">
-                        <h4 className="font-semibold text-sm text-blue-900">📋 出勤日調整・オファー</h4>
-                        {structuredMessages.map((msg) => (
-                          <div key={msg.id} className="bg-white rounded-lg p-3 shadow-sm">
-                            {msg.messageType === 'date_proposal' && (
-                              <div>
-                                <p className="text-sm font-medium text-gray-800 mb-2">
-                                  📅 初回出勤日の候補が提案されました
-                                </p>
-                                <p className="text-xs text-gray-600 mb-3">
-                                  以下から希望の日程を選択してください
-                                </p>
-                                <div className="space-y-2">
-                                  {msg.proposedDates?.map((date, idx) => (
-                                    <button
-                                      key={idx}
-                                      onClick={() => handleSelectDate(msg.id, date)}
-                                      disabled={!!msg.selectedDate}
-                                      className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                        msg.selectedDate === date
-                                          ? 'bg-green-500 text-white'
-                                          : msg.selectedDate
-                                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                          : 'bg-blue-500 hover:bg-blue-600 text-white'
-                                      }`}
-                                    >
-                                      {msg.selectedDate === date && '✓ '}{new Date(date).toLocaleDateString('ja-JP', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                        weekday: 'short'
-                                      })}
-                                    </button>
-                                  ))}
-                                </div>
-                                {msg.selectedDate && (
-                                  <p className="text-xs text-green-600 mt-2">
-                                    ✓ {new Date(msg.selectedDate).toLocaleDateString('ja-JP')} を選択済み
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                            
-                            {msg.messageType === 'date_selection' && (
-                              <div>
-                                <p className="text-sm font-medium text-gray-800">
-                                  ✓ 初回出勤日を選択しました
-                                </p>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  {msg.selectedDate && new Date(msg.selectedDate).toLocaleDateString('ja-JP', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    weekday: 'short'
-                                  })}
-                                </p>
-                              </div>
-                            )}
-                            
-                            {msg.messageType === 'formal_offer' && (
-                              <div>
-                                <p className="text-sm font-bold text-gray-800 mb-3">
-                                  📝 正式オファーが届きました
-                                </p>
-                                <div className="space-y-2 text-sm text-gray-700 mb-3">
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">初回出勤日:</span>
-                                    <span className="font-medium">
-                                      {msg.initialWorkDate && new Date(msg.initialWorkDate).toLocaleDateString('ja-JP')}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">勤務日数:</span>
-                                    <span className="font-medium">{msg.workDays}日</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">報酬総額:</span>
-                                    <span className="font-medium">¥{msg.totalCompensation?.toLocaleString()}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">勤務時間:</span>
-                                    <span className="font-medium">{msg.workHours}</span>
-                                  </div>
-                                </div>
-                                
-                                {!msg.pharmacistResponse ? (
-                                  <div className="flex space-x-2">
-                                    <button
-                                      onClick={() => handleRespondToOffer(msg.id, true)}
-                                      className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium"
-                                    >
-                                      ✓ 承諾する
-                                    </button>
-                                    <button
-                                      onClick={() => handleRespondToOffer(msg.id, false)}
-                                      className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium"
-                                    >
-                                      ✗ 辞退する
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className={`p-2 rounded-lg text-sm font-medium ${
-                                    msg.pharmacistResponse === 'accepted'
-                                      ? 'bg-green-100 text-green-800'
-                                      : 'bg-red-100 text-red-800'
-                                  }`}>
-                                    {msg.pharmacistResponse === 'accepted'
-                                      ? '✓ オファーを承諾しました'
-                                      : '✗ オファーを辞退しました'
-                                    }
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                            
-                            <p className="text-xs text-gray-400 mt-2">
-                              {new Date(msg.createdAt).toLocaleString('ja-JP')}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
                     
                     <div className="flex-1 p-4 overflow-y-auto space-y-4">
                       {messages.length === 0 ? (
@@ -1189,6 +1020,15 @@ export default function PharmacistDashboard() {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <button 
                         onClick={() => {
+                          setActiveMenu('出勤予定');
+                        }}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2"
+                      >
+                        <Clock className="w-4 h-4" />
+                        <span>出勤予定を確認</span>
+                      </button>
+                      <button 
+                        onClick={() => {
                           // メッセージスレッドを検索して選択
                           const thread = messageThreads.find(
                             t => t.application?.id === contract.applicationId
@@ -1312,6 +1152,346 @@ export default function PharmacistDashboard() {
                         閉じる
                       </button>
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case '出勤予定':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">出勤予定カレンダー</h2>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setCalendarView('month')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    calendarView === 'month'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  月間
+                </button>
+                <button
+                  onClick={() => setCalendarView('week')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    calendarView === 'week'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  週間
+                </button>
+                <button
+                  onClick={fetchSchedules}
+                  disabled={isLoadingSchedules}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium disabled:bg-gray-400"
+                >
+                  {isLoadingSchedules ? '読み込み中...' : '更新'}
+                </button>
+              </div>
+            </div>
+
+            {/* 重要なお知らせ */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h3 className="text-yellow-900 font-semibold mb-2 flex items-center">
+                <span className="mr-2">⚠️</span> 日程変更について
+              </h3>
+              <p className="text-sm text-yellow-800">
+                急な欠勤や追加出勤などのスケジュール変更は、必ず<strong>電話</strong>で薬局にご連絡ください。
+              </p>
+            </div>
+
+            {/* カレンダー */}
+            <div className="bg-white rounded-lg shadow p-6">
+              {isLoadingSchedules ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">スケジュールを読み込んでいます...</p>
+                </div>
+              ) : schedules.length === 0 ? (
+                <div className="text-center py-12">
+                  <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">勤務スケジュールがありません</h3>
+                  <p className="text-gray-600 mb-4">
+                    契約が承認され、薬局がスケジュールを設定すると、ここに表示されます。
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  {/* 契約別サマリー */}
+                  <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <p className="text-sm text-blue-600 mb-1">総出勤予定日数</p>
+                      <p className="text-2xl font-bold text-blue-900">{schedules.length}日</p>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <p className="text-sm text-green-600 mb-1">今月の出勤予定</p>
+                      <p className="text-2xl font-bold text-green-900">
+                        {schedules.filter(s => {
+                          const scheduleDate = new Date(s.workDate);
+                          const now = new Date();
+                          return scheduleDate.getMonth() === now.getMonth() && 
+                                 scheduleDate.getFullYear() === now.getFullYear();
+                        }).length}日
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-4">
+                      <p className="text-sm text-purple-600 mb-1">契約薬局数</p>
+                      <p className="text-2xl font-bold text-purple-900">
+                        {[...new Set(schedules.map(s => s.contract?.pharmacy?.pharmacyName))].filter(Boolean).length}店舗
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* カレンダー表示 */}
+                  {calendarView === 'month' ? (
+                    /* 月間ビュー */
+                    <div className="pharmacy-calendar">
+                      <Calendar
+                        value={selectedDate}
+                        onChange={(date) => {
+                          setSelectedDate(date as Date);
+                          const dateStr = (date as Date).toISOString().split('T')[0];
+                          const schedule = schedules.find(s => s.workDate.split('T')[0] === dateStr);
+                          if (schedule) {
+                            setSelectedSchedule(schedule);
+                            setShowScheduleDetail(true);
+                          }
+                        }}
+                        tileClassName={({ date }) => {
+                          const dateStr = date.toISOString().split('T')[0];
+                          const hasSchedule = schedules.some(s => s.workDate.split('T')[0] === dateStr);
+                          return hasSchedule ? 'schedule-day' : '';
+                        }}
+                        tileContent={({ date }) => {
+                          const dateStr = date.toISOString().split('T')[0];
+                          const daySchedules = schedules.filter(s => s.workDate.split('T')[0] === dateStr);
+                          if (daySchedules.length > 0) {
+                            return (
+                              <div className="text-xs mt-1">
+                                {daySchedules.map((schedule, idx) => (
+                                  <div key={idx} className="text-blue-600 font-medium truncate">
+                                    {schedule.contract?.pharmacy?.pharmacyName?.substring(0, 6) || '薬局'}
+                                    <br />
+                                    {schedule.scheduledStartTime?.substring(11, 16)}-{schedule.scheduledEndTime?.substring(11, 16)}
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                        locale="ja-JP"
+                      />
+                    </div>
+                  ) : (
+                    /* 週間ビュー */
+                    <div className="space-y-4">
+                      {/* 週ナビゲーション */}
+                      <div className="flex items-center justify-between border-b pb-4">
+                        <button
+                          onClick={() => {
+                            const newDate = new Date(selectedDate);
+                            newDate.setDate(newDate.getDate() - 7);
+                            setSelectedDate(newDate);
+                          }}
+                          className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100"
+                        >
+                          ← 前週
+                        </button>
+                        <div className="text-lg font-semibold">
+                          {(() => {
+                            const start = new Date(selectedDate);
+                            start.setDate(start.getDate() - start.getDay());
+                            const end = new Date(start);
+                            end.setDate(end.getDate() + 6);
+                            return `${start.getMonth() + 1}/${start.getDate()} - ${end.getMonth() + 1}/${end.getDate()}`;
+                          })()}
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newDate = new Date(selectedDate);
+                            newDate.setDate(newDate.getDate() + 7);
+                            setSelectedDate(newDate);
+                          }}
+                          className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100"
+                        >
+                          次週 →
+                        </button>
+                      </div>
+
+                      {/* 週間スケジュールリスト */}
+                      <div className="grid grid-cols-1 gap-3">
+                        {(() => {
+                          const weekStart = new Date(selectedDate);
+                          weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                          
+                          return Array.from({ length: 7 }, (_, i) => {
+                            const date = new Date(weekStart);
+                            date.setDate(date.getDate() + i);
+                            const dateStr = date.toISOString().split('T')[0];
+                            const daySchedules = schedules.filter(s => s.workDate.split('T')[0] === dateStr);
+                            
+                            const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+                            const isWeekend = i === 0 || i === 6;
+                            const isToday = dateStr === new Date().toISOString().split('T')[0];
+                            
+                            return (
+                              <div
+                                key={i}
+                                className={`border rounded-lg p-4 transition-all ${
+                                  daySchedules.length > 0
+                                    ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
+                                    : 'bg-gray-50 border-gray-200'
+                                } ${isToday ? 'ring-2 ring-yellow-400' : ''}`}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className={`text-center ${isWeekend ? 'text-red-600' : 'text-gray-700'}`}>
+                                    <div className="text-xs font-medium">{dayNames[i]}</div>
+                                    <div className="text-2xl font-bold">{date.getDate()}</div>
+                                  </div>
+                                  {daySchedules.length === 0 && (
+                                    <div className="text-sm text-gray-400">休日</div>
+                                  )}
+                                </div>
+                                
+                                {daySchedules.length > 0 && (
+                                  <div className="space-y-2">
+                                    {daySchedules.map((schedule, idx) => (
+                                      <div
+                                        key={idx}
+                                        onClick={() => {
+                                          setSelectedSchedule(schedule);
+                                          setShowScheduleDetail(true);
+                                        }}
+                                        className="cursor-pointer bg-white rounded-lg p-3 hover:shadow-md transition-shadow"
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <div className="flex-1">
+                                            <div className="font-semibold text-blue-900 mb-1">
+                                              {schedule.contract?.pharmacy?.pharmacyName || '薬局名不明'}
+                                            </div>
+                                            <div className="flex items-center space-x-2 text-sm">
+                                              <Clock className="w-4 h-4 text-blue-600" />
+                                              <span className="font-medium text-blue-900">
+                                                {schedule.scheduledStartTime?.substring(11, 16)} - {schedule.scheduledEndTime?.substring(11, 16)}
+                                              </span>
+                                            </div>
+                                            <div className="text-xs text-gray-600 mt-1">
+                                              {schedule.contract?.pharmacy?.prefecture} {schedule.contract?.pharmacy?.city}
+                                            </div>
+                                          </div>
+                                          <div className="text-blue-600">
+                                            <Eye className="w-5 h-5" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {schedules.length > 0 && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 className="text-blue-900 font-semibold mb-2">💡 出勤予定カレンダーについて</h3>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• 青色でハイライトされた日が勤務予定日です</li>
+                  <li>• 日付をクリックすると、その日の詳細が表示されます</li>
+                  <li>• 複数の薬局と契約している場合、すべての予定がまとめて表示されます</li>
+                  <li>• 日程変更が必要な場合は、必ず電話で薬局にご連絡ください</li>
+                </ul>
+              </div>
+            )}
+
+            {/* スケジュール詳細モーダル */}
+            {showScheduleDetail && selectedSchedule && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg max-w-md w-full p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">📅 出勤予定詳細</h3>
+                    <button
+                      onClick={() => {
+                        setShowScheduleDetail(false);
+                        setSelectedSchedule(null);
+                      }}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">勤務先</label>
+                      <p className="text-gray-900 font-semibold">
+                        {selectedSchedule.contract?.pharmacy?.pharmacyName || '薬局名不明'}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {selectedSchedule.contract?.pharmacy?.prefecture} {selectedSchedule.contract?.pharmacy?.city}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">勤務日</label>
+                      <p className="text-gray-900">
+                        {new Date(selectedSchedule.workDate).toLocaleDateString('ja-JP', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          weekday: 'long'
+                        })}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">勤務時間</label>
+                      <p className="text-gray-900 text-lg font-semibold">
+                        {selectedSchedule.scheduledStartTime?.substring(11, 16)} ～ {selectedSchedule.scheduledEndTime?.substring(11, 16)}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">休憩時間</label>
+                      <p className="text-gray-900">{selectedSchedule.breakTimeMinutes}分</p>
+                    </div>
+
+                    {selectedSchedule.notes && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">メモ</label>
+                        <p className="text-gray-900 bg-gray-50 p-3 rounded-lg text-sm">{selectedSchedule.notes}</p>
+                      </div>
+                    )}
+
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                      <p className="text-sm text-yellow-800">
+                        ⚠️ 急な欠勤や時間変更は、必ず薬局に電話でご連絡ください。
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      onClick={() => {
+                        setShowScheduleDetail(false);
+                        setSelectedSchedule(null);
+                      }}
+                      className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
+                    >
+                      閉じる
+                    </button>
                   </div>
                 </div>
               </div>

@@ -1,8 +1,8 @@
 import { apiClient } from '../api-client';
 
 export interface JobPosting {
-  id: string;
-  pharmacyId: string;
+  id: number;
+  pharmacyId: number;
   title: string;
   description: string | null;
   employmentType: 'full_time' | 'part_time' | 'temporary' | 'contract';
@@ -25,6 +25,7 @@ export interface JobPosting {
   applicationDeadline: string | null;
   suggestedStartDate?: string | null;
   contractDurationDays?: number | null;
+  preferredSchedule?: string | null;
   status: 'draft' | 'active' | 'paused' | 'closed' | 'expired';
   maxApplicants: number | null;
   currentApplicants: number;
@@ -58,7 +59,7 @@ export interface JobDetailResponse {
 }
 
 export interface CreateJobData {
-  pharmacyId: string;
+  pharmacyId: number;
   title: string;
   description?: string;
   employmentType: 'full_time' | 'part_time' | 'temporary' | 'contract';
@@ -82,6 +83,7 @@ export interface CreateJobData {
   benefits?: string[];
   applicationDeadline?: string;
   maxApplicants?: number;
+  preferredSchedule?: string;
 }
 
 export interface GetJobsParams {
@@ -133,17 +135,17 @@ export const createJob = async (data: CreateJobData) => {
 };
 
 // Update job (for pharmacy)
-export const updateJob = async (id: string, data: Partial<CreateJobData>) => {
+export const updateJob = async (id: number, data: Partial<CreateJobData>) => {
   return apiClient.put<{ message: string; job: JobPosting }>(`/api/jobs/${id}`, data);
 };
 
 // Update job status (for pharmacy)
-export const updateJobStatus = async (id: string, status: string) => {
+export const updateJobStatus = async (id: number, status: string) => {
   return apiClient.patch<{ message: string; job: JobPosting }>(`/api/jobs/${id}/status`, { status });
 };
 
 // Delete job (for pharmacy)
-export const deleteJob = async (id: string) => {
+export const deleteJob = async (id: number) => {
   return apiClient.delete<{ message: string }>(`/api/jobs/${id}`);
 };
 

@@ -18,12 +18,25 @@ export interface PharmacistProfile {
   licenseNumber?: string;
   licenseIssuedDate?: string;
   graduationUniversity?: string;
+  university?: string;  // 卒業大学（エイリアス）
   graduationYear?: number;
   experienceYears?: number;
   specialties?: string[];
   bio?: string;
   hasDriversLicense?: boolean;
   hasHomeCareExperience?: boolean;
+  // 新規追加フィールド
+  age?: number;
+  licenseAcquiredYear?: number;
+  certifiedPharmacistQualifications?: string[];
+  otherQualifications?: string[];
+  workExperienceMonths?: number;
+  workExperienceTypes?: string[];
+  mainJobExperiences?: string[];
+  specialtyFields?: string[];
+  pharmacySystemsExperience?: string[];
+  specialNotes?: string;
+  selfIntroduction?: string;
   createdAt?: string;
   updatedAt?: string;
 }

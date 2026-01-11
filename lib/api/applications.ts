@@ -2,9 +2,9 @@ import { apiClient } from '../api-client';
 import { JobPosting } from './jobs';
 
 export interface JobApplication {
-  id: string;
-  jobPostingId: string;
-  pharmacistId: string;
+  id: number;
+  jobPostingId: number;
+  pharmacistId: number;
   coverLetter: string | null;
   status: 'pending' | 'under_review' | 'interview_scheduled' | 'accepted' | 'rejected' | 'withdrawn';
   appliedAt: string;
@@ -15,7 +15,7 @@ export interface JobApplication {
   notes: string | null;
   jobPosting?: Partial<JobPosting>;
   pharmacist?: {
-    id: string;
+    id: number;
     firstName: string;
     lastName: string;
     experienceYears: number | null;
@@ -24,6 +24,21 @@ export interface JobApplication {
     phone: string | null;
     hasDriversLicense: boolean;
     hasHomeCareExperience: boolean;
+    // 新規追加フィールド
+    age?: number;
+    university?: string;
+    graduationYear?: number;
+    licenseAcquiredYear?: number;
+    certifiedPharmacistQualifications?: string[];
+    otherQualifications?: string[];
+    workExperienceMonths?: number;
+    workExperienceTypes?: string[];
+    mainJobExperiences?: string[];
+    specialtyFields?: string[];
+    pharmacySystemsExperience?: string[];
+    specialNotes?: string;
+    selfIntroduction?: string;
+    bio?: string;
     user?: {
       email: string;
     };
@@ -37,7 +52,7 @@ export interface JobApplication {
 }
 
 export interface ApplyToJobData {
-  jobPostingId: string;
+  jobPostingId: number;
   coverLetter?: string;
 }
 
@@ -84,12 +99,12 @@ export const getApplicationById = async (id: string) => {
 };
 
 // Accept application (for pharmacy)
-export const acceptApplication = async (id: string, notes?: string) => {
+export const acceptApplication = async (id: number, notes?: string) => {
   return apiClient.patch<{ message: string; application: JobApplication }>(`/api/applications/${id}/accept`, { notes });
 };
 
 // Reject application (for pharmacy)
-export const rejectApplication = async (id: string, data: { rejectionReason?: string; notes?: string }) => {
+export const rejectApplication = async (id: number, data: { rejectionReason?: string; notes?: string }) => {
   return apiClient.patch<{ message: string; application: JobApplication }>(`/api/applications/${id}/reject`, data);
 };
 

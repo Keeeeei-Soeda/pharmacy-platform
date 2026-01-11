@@ -193,7 +193,8 @@ export default function AdminPharmacistsPage() {
     if (!filename) return null;
     const name = filename.split('/').pop();
     const token = localStorage.getItem('token');
-    return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/uploads/license/${name}?token=${token}`;
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+    return `${API_BASE_URL}/api/uploads/license/${name}?token=${token}`;
   };
 
   if (isLoading) {

@@ -3,14 +3,15 @@ import { apiClient } from '../api-client';
 // 契約関連の型定義
 export interface WorkContract {
   id: string;
-  applicationId: string;
-  pharmacyId: string;
-  pharmacistId: string;
+  applicationId: number;
+  pharmacyId: number;
+  pharmacistId: number;
   status: 'pending' | 'active' | 'completed' | 'terminated' | 'rejected';
   offerSentAt: string | null;
   acceptedAt: string | null;
   rejectedAt: string | null;
   terms: string | null;
+  workNoticeUrl: string | null; // 労働条件通知書PDFのURL
   contractStartDate: string | null;
   contractEndDate: string | null;
   dailyRate: number | null;
@@ -62,7 +63,7 @@ export interface WorkContract {
 
 // 薬局側: 採用オファー送信
 export const sendJobOffer = async (data: {
-  applicationId: string;
+  applicationId: number;
   startDate?: string;
   endDate?: string;
   notes?: string;

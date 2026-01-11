@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 import { 
   Users, 
   FileText, 
@@ -22,7 +24,7 @@ import {
   X,
   Edit,
   Save,
-  Calendar
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import { 
@@ -43,11 +45,11 @@ import {
   sendJobOffer,
   getPharmacyContracts,
   getContractDetail,
+  getSchedulesByContract,
   getPharmacyProfile,
   updatePharmacyProfile,
   getPharmacyFees,
-  proposeDates,
-  sendFormalOffer,
+  type WorkSchedule,
   type WorkContract,
   type PharmacyProfile,
   type PlatformFee
@@ -120,19 +122,6 @@ export default function PharmacyDashboard() {
   const [fees, setFees] = useState<PlatformFee[]>([]);
   const [selectedFee, setSelectedFee] = useState<PlatformFee | null>(null);
   const [isLoadingFees, setIsLoadingFees] = useState(false);
-
-  // Structured Message States
-  const [showDateProposalModal, setShowDateProposalModal] = useState(false);
-  const [proposedDates, setProposedDates] = useState<string[]>(['', '', '']);
-  const [showFormalOfferModal, setShowFormalOfferModal] = useState(false);
-  const [offerData, setOfferData] = useState({
-    initialWorkDate: '',
-    workDays: 30,
-    totalCompensation: 750000,
-    workHours: '9:00-18:00',
-    platformFee: 50000,
-    paymentDeadline: ''
-  });
 
   const menuItems = [
     { id: '応募確認' as ActiveMenu, label: '薬剤師からの応募確認', icon: Users },
@@ -250,7 +239,7 @@ export default function PharmacyDashboard() {
       // Note: pharmacyId should come from user's pharmacy profile
       // For now, we'll need to handle this in the backend or fetch it first
       await createJob({
-        pharmacyId: profile?.id ? parseInt(profile.id) : 1, // Get from profile or use default
+        pharmacyId: 'temp-pharmacy-id', // This should be fetched from user profile
         title: jobFormData.title,
         description: jobFormData.description,
         employmentType: jobFormData.employmentType,
@@ -306,7 +295,7 @@ export default function PharmacyDashboard() {
     }
   };
 
-  const handleAcceptApplication = async (applicationId: number) => {
+  const handleAcceptApplication = async (applicationId: string) => {
     try {
       await acceptApplication(applicationId);
       alert('応募を承認しました！メッセージタブで薬剤師とやり取りできます。');
@@ -319,7 +308,7 @@ export default function PharmacyDashboard() {
     }
   };
 
-  const handleRejectApplication = async (applicationId: number, reason?: string) => {
+  const handleRejectApplication = async (applicationId: string, reason?: string) => {
     try {
       await rejectApplication(applicationId, { rejectionReason: reason });
       alert('応募を拒否しました');
@@ -341,6 +330,20 @@ export default function PharmacyDashboard() {
     }
   };
 
+  // スケジュール取得
+  const fetchSchedules = async (contractId: string) => {
+    setIsLoadingSchedules(true);
+    try {
+      const scheduleData = await getSchedulesByContract(contractId);
+      setSchedules(scheduleData || []);
+    } catch (err) {
+      console.error('Failed to fetch schedules:', err);
+      setSchedules([]);
+      alert('スケジュールの取得に失敗しました');
+    } finally {
+      setIsLoadingSchedules(false);
+    }
+  };
 
   // プロフィール情報取得
   const fetchProfile = async () => {
@@ -381,7 +384,7 @@ export default function PharmacyDashboard() {
     }
   };
 
-  const handleSendJobOffer = async (applicationId: number) => {
+  const handleSendJobOffer = async (applicationId: string) => {
     if (!confirm('この薬剤師に採用オファーを送信しますか？')) return;
     
     try {
@@ -487,78 +490,6 @@ export default function PharmacyDashboard() {
       fetchFees();
     }
   }, [activeMenu]);
-
-  // 日付候補を提案
-  const handleProposeDates = async () => {
-    if (!selectedApplication) return;
-
-    // 2週間後以降の日付のみ許可
-    const twoWeeksLater = new Date();
-    twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
-
-    const validDates = proposedDates.filter(date => {
-      if (!date) return false;
-      const dateObj = new Date(date);
-      return dateObj >= twoWeeksLater;
-    });
-
-    if (validDates.length === 0) {
-      alert('2週間後以降の日付を最低1つ選択してください');
-      return;
-    }
-
-    try {
-      await proposeDates({
-        applicationId: selectedApplication.id,
-        proposedDates: validDates
-      });
-      alert('日付候補を送信しました');
-      setShowDateProposalModal(false);
-      setProposedDates(['', '', '']);
-    } catch (err) {
-      console.error('Failed to propose dates:', err);
-      alert('日付候補の送信に失敗しました');
-    }
-  };
-
-  // 正式オファーを送信
-  const handleSendFormalOffer = async () => {
-    if (!selectedApplication) return;
-
-    if (!offerData.initialWorkDate || !offerData.paymentDeadline) {
-      alert('初回出勤日と支払い期限を入力してください');
-      return;
-    }
-
-    // 報酬と手数料を自動計算（日給2.5万円固定、手数料40%）
-    const DAILY_RATE = 25000;
-    const totalCompensation = DAILY_RATE * offerData.workDays;
-    const platformFee = Math.floor(totalCompensation * 0.40);
-
-    try {
-      await sendFormalOffer({
-        applicationId: selectedApplication.id,
-        initialWorkDate: offerData.initialWorkDate,
-        workDays: offerData.workDays,
-        workHours: offerData.workHours,
-        paymentDeadline: offerData.paymentDeadline
-      });
-      alert(`正式オファーを送信しました\n報酬総額: ${totalCompensation.toLocaleString()}円\nプラットフォーム手数料: ${platformFee.toLocaleString()}円`);
-      setShowFormalOfferModal(false);
-      // フォームをリセット
-      setOfferData({
-        initialWorkDate: '',
-        workDays: 30,
-        totalCompensation: 750000,
-        workHours: '9:00-18:00',
-        platformFee: 50000,
-        paymentDeadline: ''
-      });
-    } catch (err) {
-      console.error('Failed to send formal offer:', err);
-      alert('正式オファーの送信に失敗しました');
-    }
-  };
 
   const renderContent = () => {
     switch (activeMenu) {
@@ -864,38 +795,6 @@ export default function PharmacyDashboard() {
                           拒否する
                         </button>
                       </>
-                    ) : selectedApplication.status === 'accepted' ? (
-                      <>
-                        <button 
-                          onClick={() => {
-                            setShowDateProposalModal(true);
-                          }}
-                          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium"
-                        >
-                          📅 初回出勤日の候補を提案
-                        </button>
-                        <button 
-                          onClick={() => {
-                            // デフォルト値を設定
-                            const threeDaysBeforeStart = new Date();
-                            threeDaysBeforeStart.setDate(threeDaysBeforeStart.getDate() + 17);
-                            setOfferData({
-                              ...offerData,
-                              paymentDeadline: threeDaysBeforeStart.toISOString().split('T')[0]
-                            });
-                            setShowFormalOfferModal(true);
-                          }}
-                          className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium"
-                        >
-                          📝 正式オファーを送信
-                        </button>
-                        <button 
-                          onClick={() => setSelectedApplication(null)}
-                          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
-                        >
-                          閉じる
-                        </button>
-                      </>
                     ) : (
                       <button 
                         onClick={() => setSelectedApplication(null)}
@@ -904,208 +803,6 @@ export default function PharmacyDashboard() {
                         閉じる
                       </button>
                     )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 日付候補提案モーダル */}
-            {showDateProposalModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
-                <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">初回出勤日の候補を提案</h3>
-                    <button 
-                      onClick={() => setShowDateProposalModal(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <X className="w-6 h-6" />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <p className="text-sm text-gray-600">
-                      薬剤師に複数の候補日を提案してください（最大3つ）
-                    </p>
-                    
-                    {proposedDates.map((date, index) => (
-                      <div key={index}>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          候補日 {index + 1}
-                        </label>
-                        <input 
-                          type="date"
-                          value={date}
-                          onChange={(e) => {
-                            const newDates = [...proposedDates];
-                            newDates[index] = e.target.value;
-                            setProposedDates(newDates);
-                          }}
-                          min={(() => {
-                            const twoWeeksLater = new Date();
-                            twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
-                            return twoWeeksLater.toISOString().split('T')[0];
-                          })()}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    ))}
-                    
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                      <p className="text-xs text-orange-800">
-                        ⚠️ 2週間後以降の日付のみ選択可能です
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end space-x-3 mt-6">
-                    <button 
-                      onClick={() => setShowDateProposalModal(false)}
-                      className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
-                    >
-                      キャンセル
-                    </button>
-                    <button 
-                      onClick={handleProposeDates}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium"
-                    >
-                      送信する
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 正式オファー送信モーダル */}
-            {showFormalOfferModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
-                <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">正式オファーを送信</h3>
-                    <button 
-                      onClick={() => setShowFormalOfferModal(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <X className="w-6 h-6" />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        初回出勤日 <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        type="date"
-                        value={offerData.initialWorkDate}
-                        onChange={(e) => setOfferData({...offerData, initialWorkDate: e.target.value})}
-                        min={(() => {
-                          const twoWeeksLater = new Date();
-                          twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
-                          return twoWeeksLater.toISOString().split('T')[0];
-                        })()}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        勤務日数 <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        type="number"
-                        value={offerData.workDays}
-                        onChange={(e) => setOfferData({...offerData, workDays: parseInt(e.target.value) || 10})}
-                        min="10"
-                        max="90"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        10〜90日の範囲で入力してください
-                      </p>
-                    </div>
-                    
-                    {/* 報酬総額の自動計算表示 */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-700">日給（固定）:</span>
-                          <span className="text-sm font-semibold text-gray-900">¥25,000</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-700">勤務日数:</span>
-                          <span className="text-sm font-semibold text-gray-900">{offerData.workDays}日</span>
-                        </div>
-                        <div className="border-t border-blue-300 my-2"></div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-base font-medium text-gray-800">報酬総額:</span>
-                          <span className="text-lg font-bold text-blue-600">
-                            ¥{(offerData.workDays * 25000).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-700">プラットフォーム手数料（40%）:</span>
-                          <span className="text-sm font-semibold text-orange-600">
-                            ¥{Math.floor(offerData.workDays * 25000 * 0.40).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-3 text-xs text-blue-800">
-                        💡 報酬は体験期間終了後に薬剤師へ直接お支払いください
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        勤務時間（目安）
-                      </label>
-                      <input 
-                        type="text"
-                        value={offerData.workHours}
-                        onChange={(e) => setOfferData({...offerData, workHours: e.target.value})}
-                        placeholder="9:00-18:00"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        詳細なスケジュールは薬剤師と直接調整してください
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        手数料支払い期限 <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        type="date"
-                        value={offerData.paymentDeadline}
-                        onChange={(e) => setOfferData({...offerData, paymentDeadline: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        ⚠️ 初回出勤日の3日前までに設定してください
-                      </p>
-                    </div>
-
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                      <p className="text-xs text-yellow-800">
-                        <strong>重要:</strong> 手数料のお支払い確認後、薬剤師の連絡先が開示されます。期限内にお支払いください。
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end space-x-3 mt-6">
-                    <button 
-                      onClick={() => setShowFormalOfferModal(false)}
-                      className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
-                    >
-                      キャンセル
-                    </button>
-                    <button 
-                      onClick={handleSendFormalOffer}
-                      className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium"
-                    >
-                      オファーを送信
-                    </button>
                   </div>
                 </div>
               </div>
@@ -1306,15 +1003,16 @@ export default function PharmacyDashboard() {
                             
                             return (
                               <>
-                                <div className="space-y-3">
-                                  {/* 初回出勤日の提案とオファー機能は今後実装予定 */}
-                                  <div className="bg-blue-50 p-4 rounded-lg text-center text-gray-600">
-                                    メッセージでやり取りをしてください
-                                  </div>
-                                </div>
+                                <button
+                                  onClick={() => handleSendJobOffer(selectedThread.application.id)}
+                                  className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 shadow-sm"
+                                >
+                                  <CheckCircle className="w-5 h-5" />
+                                  <span>この薬剤師を採用する</span>
+                                </button>
                                 
                                 <div className="text-xs text-gray-500 mt-2 p-3 bg-gray-50 rounded border">
-                                  <p>💡 まず候補日を提案し、薬剤師が選択後に正式オファーを送信してください。</p>
+                                  <p>💡 採用ボタンを押すと、薬剤師に採用オファーが送信されます。</p>
                                 </div>
                               </>
                             );
@@ -1375,7 +1073,6 @@ export default function PharmacyDashboard() {
                         'rejected': { label: '辞退', color: 'bg-red-100 text-red-800' }
                       };
                       const statusInfo = statusMap[contract.status] || { label: contract.status, color: 'bg-gray-100 text-gray-800' };
-                      const hasWorkNotice = contract.status === 'active' && contract.terms;
                       
                       return (
                         <tr key={contract.id} className="hover:bg-gray-50">
@@ -1389,11 +1086,6 @@ export default function PharmacyDashboard() {
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusInfo.color}`}>
                               {statusInfo.label}
                             </span>
-                            {hasWorkNotice && (
-                              <span className="ml-2 inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
-                                📋 通知書あり
-                              </span>
-                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {new Date(contract.createdAt).toLocaleDateString('ja-JP')}
@@ -1436,222 +1128,41 @@ export default function PharmacyDashboard() {
                     </div>
 
                     <div className="space-y-6">
-                      {/* 契約基本情報 */}
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h4 className="font-semibold text-gray-800 mb-3">契約基本情報</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <p className="text-xs text-gray-500 mb-1">薬剤師名</p>
-                            <p className="text-sm font-medium text-gray-900">
+                          <h4 className="font-medium text-gray-700 mb-2">薬剤師</h4>
+                          <p className="text-gray-900">
                             {selectedContract.pharmacist?.lastName} {selectedContract.pharmacist?.firstName}
                           </p>
                         </div>
                         <div>
-                            <p className="text-xs text-gray-500 mb-1">契約ステータス</p>
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              selectedContract.status === 'active' ? 'bg-green-100 text-green-800' :
-                              selectedContract.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              selectedContract.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {selectedContract.status === 'active' ? '契約中' :
-                               selectedContract.status === 'pending' ? '承諾待ち' :
-                               selectedContract.status === 'rejected' ? '辞退' :
-                               selectedContract.status}
-                            </span>
-                          </div>
-                          {selectedContract.application?.jobPosting?.title && (
-                            <div>
-                              <p className="text-xs text-gray-500 mb-1">求人タイトル</p>
-                              <p className="text-sm text-gray-900">{selectedContract.application.jobPosting.title}</p>
-                            </div>
-                          )}
-                          {selectedContract.contractStartDate && (
-                            <div>
-                              <p className="text-xs text-gray-500 mb-1">契約開始日</p>
-                              <p className="text-sm text-gray-900">
-                                {new Date(selectedContract.contractStartDate).toLocaleDateString('ja-JP')}
-                              </p>
-                            </div>
-                          )}
-                          {selectedContract.contractEndDate && (
-                            <div>
-                              <p className="text-xs text-gray-500 mb-1">契約終了日</p>
-                              <p className="text-sm text-gray-900">
-                                {new Date(selectedContract.contractEndDate).toLocaleDateString('ja-JP')}
-                              </p>
-                            </div>
-                          )}
-                          {selectedContract.offerSentAt && (
-                            <div>
-                              <p className="text-xs text-gray-500 mb-1">オファー送信日</p>
-                              <p className="text-sm text-gray-900">
-                                {new Date(selectedContract.offerSentAt).toLocaleDateString('ja-JP')}
-                              </p>
-                            </div>
-                          )}
-                          {selectedContract.acceptedAt && (
-                            <div>
-                              <p className="text-xs text-gray-500 mb-1">承諾日</p>
-                              <p className="text-sm text-gray-900">
-                                {new Date(selectedContract.acceptedAt).toLocaleDateString('ja-JP')}
-                              </p>
-                            </div>
-                          )}
+                          <h4 className="font-medium text-gray-700 mb-2">ステータス</h4>
+                          <p className="text-gray-900">{selectedContract.status}</p>
                         </div>
                       </div>
 
                       {selectedContract.status === 'active' && selectedContract.terms && (
                         <div>
-                          <div className="flex justify-between items-center mb-3">
-                            <h4 className="font-medium text-gray-700">📋 労働条件通知書</h4>
-                            <div className="flex space-x-2">
-                              {selectedContract.workNoticeUrl ? (
-                                <>
-                                  <a
-                                    href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${selectedContract.workNoticeUrl}`}
-                                    download
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1"
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                    </svg>
-                                    <span>PDF ダウンロード</span>
-                                  </a>
-                                  <button
-                                    onClick={() => {
-                                      window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${selectedContract.workNoticeUrl}`, '_blank');
-                                    }}
-                                    className="text-sm bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1"
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    <span>PDFを開く</span>
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <button
-                                    onClick={() => {
-                                      const blob = new Blob([selectedContract.terms || ''], { type: 'text/plain;charset=utf-8' });
-                                      const url = URL.createObjectURL(blob);
-                                      const a = document.createElement('a');
-                                      a.href = url;
-                                      a.download = `労働条件通知書_${selectedContract.pharmacist?.lastName}${selectedContract.pharmacist?.firstName}_${new Date().toISOString().split('T')[0]}.txt`;
-                                      document.body.appendChild(a);
-                                      a.click();
-                                      document.body.removeChild(a);
-                                      URL.revokeObjectURL(url);
-                                    }}
-                                    className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1"
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    <span>テキストでダウンロード</span>
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      const printWindow = window.open('', '_blank');
-                                      if (printWindow) {
-                                        printWindow.document.write(`
-                                          <html>
-                                            <head>
-                                              <title>労働条件通知書</title>
-                                              <style>
-                                                body { font-family: 'MS Gothic', monospace; padding: 20mm; white-space: pre-wrap; }
-                                                @media print { body { padding: 0; } }
-                                              </style>
-                                            </head>
-                                            <body>${selectedContract.terms}</body>
-                                          </html>
-                                        `);
-                                        printWindow.document.close();
-                                        printWindow.focus();
-                                        setTimeout(() => {
-                                          printWindow.print();
-                                        }, 250);
-                                      }
-                                    }}
-                                    className="text-sm bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1"
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                    </svg>
-                                    <span>印刷</span>
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                          <div className="bg-white border-2 border-gray-300 rounded-lg p-6 shadow-sm">
-                            <pre className="text-sm whitespace-pre-wrap font-mono text-gray-800 leading-relaxed">
+                          <h4 className="font-medium text-gray-700 mb-2">労働条件通知書</h4>
+                          <pre className="bg-gray-50 p-4 rounded-lg text-sm whitespace-pre-wrap font-mono">
                             {selectedContract.terms}
                           </pre>
-                          </div>
-                          <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <p className="text-xs text-blue-800">
-                              💡 この労働条件通知書は契約成立時に自動生成されました。ダウンロードまたは印刷してご活用ください。
-                            </p>
-                          </div>
                         </div>
                       )}
 
                       {selectedContract.status === 'pending' && (
-                        <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4">
-                          <div className="flex">
-                            <div className="flex-shrink-0">
-                              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                            <div className="ml-3">
-                              <h3 className="text-sm font-medium text-yellow-800">薬剤師の承諾待ちです</h3>
-                              <div className="mt-2 text-sm text-yellow-700">
-                                <p>薬剤師が契約を承諾すると、労働条件通知書が自動生成され、両者で確認できるようになります。</p>
-                              </div>
-                            </div>
-                          </div>
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                          <p className="text-yellow-800 text-sm">
+                            💡 薬剤師の承諾をお待ちください。承諾されると労働条件通知書が自動生成されます。
+                          </p>
                         </div>
                       )}
 
                       {selectedContract.status === 'rejected' && (
-                        <div className="bg-red-50 border-l-4 border-red-400 rounded-lg p-4">
-                          <div className="flex">
-                            <div className="flex-shrink-0">
-                              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                            <div className="ml-3">
-                              <h3 className="text-sm font-medium text-red-800">この契約は薬剤師により辞退されました</h3>
-                              <div className="mt-2 text-sm text-red-700">
-                                <p>別の薬剤師を検討するか、募集条件を見直してください。</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedContract.status === 'active' && (
-                        <div className="bg-green-50 border-l-4 border-green-400 rounded-lg p-4">
-                          <div className="flex">
-                            <div className="flex-shrink-0">
-                              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                            <div className="ml-3">
-                              <h3 className="text-sm font-medium text-green-800">契約が成立しています</h3>
-                              <div className="mt-2 text-sm text-green-700">
-                                <p>労働条件通知書が発行されています。薬剤師とメッセージで勤務開始の詳細を調整してください。</p>
-                              </div>
-                            </div>
-                          </div>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                          <p className="text-red-800 text-sm">
+                            この契約は薬剤師により辞退されました。
+                          </p>
                         </div>
                       )}
                     </div>
@@ -1826,33 +1337,33 @@ export default function PharmacyDashboard() {
                       <h4 className="font-semibold text-gray-900 border-b pb-2">必須項目</h4>
                       
                       {/* 1. 求人タイトル */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        求人タイトル <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        type="text"
-                        value={jobFormData.title}
-                        onChange={(e) => setJobFormData({...jobFormData, title: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          求人タイトル <span className="text-red-500">*</span>
+                        </label>
+                        <input 
+                          type="text"
+                          value={jobFormData.title}
+                          onChange={(e) => setJobFormData({...jobFormData, title: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                           placeholder="例：短期勤務の薬剤師を募集します"
-                        required
-                      />
-                    </div>
+                          required
+                        />
+                      </div>
 
                       {/* 2. 求人詳細 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        求人詳細
-                      </label>
-                      <textarea 
-                        value={jobFormData.description}
-                        onChange={(e) => setJobFormData({...jobFormData, description: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        rows={4}
-                        placeholder="仕事内容や職場の雰囲気など..."
-                      />
-                    </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          求人詳細
+                        </label>
+                        <textarea 
+                          value={jobFormData.description}
+                          onChange={(e) => setJobFormData({...jobFormData, description: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          rows={4}
+                          placeholder="仕事内容や職場の雰囲気など..."
+                        />
+                      </div>
 
                       {/* 3. 勤務地 */}
                       <div>
@@ -1866,23 +1377,23 @@ export default function PharmacyDashboard() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                           placeholder="例：大阪市中央区"
                         />
-                    </div>
+                      </div>
 
                       {/* 4. 希望勤務日数 */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           希望勤務日数 <span className="text-red-500">*</span>
-                          </label>
-                          <input 
-                            type="number"
-                            value={jobFormData.contractDurationDays}
-                            onChange={(e) => setJobFormData({...jobFormData, contractDurationDays: e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            placeholder="30"
+                        </label>
+                        <input 
+                          type="number"
+                          value={jobFormData.contractDurationDays}
+                          onChange={(e) => setJobFormData({...jobFormData, contractDurationDays: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="30"
                           min="10"
                           max="90"
-                            required
-                          />
+                          required
+                        />
                         <p className="text-xs text-gray-500 mt-1">10日〜90日（3ヶ月）の範囲で入力してください</p>
                         {jobFormData.contractDurationDays && Number(jobFormData.contractDurationDays) >= 10 && Number(jobFormData.contractDurationDays) <= 90 && (
                           <p className="text-sm font-medium text-blue-600 mt-2">
@@ -1917,32 +1428,32 @@ export default function PharmacyDashboard() {
                         <p className="text-xs text-orange-600 mt-1">
                           ※ 今日から2週間後以降の日付を選択してください
                         </p>
-                    </div>
+                      </div>
 
                       {/* 6. 募集期限 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           募集期限 <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        type="date"
-                        value={jobFormData.applicationDeadline}
-                        onChange={(e) => setJobFormData({...jobFormData, applicationDeadline: e.target.value})}
-                        min={(() => {
-                          const minDate = new Date();
-                          minDate.setDate(minDate.getDate() + 3);
-                          return minDate.toISOString().split('T')[0];
-                        })()}
-                        max={(() => {
-                          const maxDate = new Date();
-                          maxDate.setDate(maxDate.getDate() + 14);
-                          return maxDate.toISOString().split('T')[0];
-                        })()}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
+                        </label>
+                        <input 
+                          type="date"
+                          value={jobFormData.applicationDeadline}
+                          onChange={(e) => setJobFormData({...jobFormData, applicationDeadline: e.target.value})}
+                          min={(() => {
+                            const minDate = new Date();
+                            minDate.setDate(minDate.getDate() + 3);
+                            return minDate.toISOString().split('T')[0];
+                          })()}
+                          max={(() => {
+                            const maxDate = new Date();
+                            maxDate.setDate(maxDate.getDate() + 14);
+                            return maxDate.toISOString().split('T')[0];
+                          })()}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          required
+                        />
                         <p className="text-xs text-gray-500 mt-1">デフォルト：今日から7日後（最短3日後、最長14日後）</p>
-                    </div>
+                      </div>
 
                       {/* 7. 応募条件・資格 */}
                       <div>
@@ -1964,17 +1475,17 @@ export default function PharmacyDashboard() {
                       <h4 className="font-semibold text-gray-900 border-b pb-2">任意項目（参考情報）</h4>
                       
                       {/* 8. 希望勤務曜日・時間帯 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           希望勤務曜日・時間帯
-                      </label>
-                      <textarea 
+                        </label>
+                        <textarea 
                           value={jobFormData.preferredSchedule}
                           onChange={(e) => setJobFormData({...jobFormData, preferredSchedule: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          rows={3}
                           placeholder="例：火・木・金の午前中希望、平日9:00-18:00など"
-                      />
+                        />
                         <p className="text-xs text-gray-500 mt-1">※あくまで希望です。実際の勤務日時は薬剤師と相談の上決定します</p>
                       </div>
                     </div>
@@ -2349,6 +1860,380 @@ export default function PharmacyDashboard() {
           </div>
         );
 
+      case '勤務スケジュール':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">勤務スケジュール管理</h2>
+            </div>
+
+            {/* 重要なお知らせ */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h3 className="text-yellow-900 font-semibold mb-2 flex items-center">
+                <span className="mr-2">⚠️</span> 日程変更について
+              </h3>
+              <p className="text-sm text-yellow-800">
+                急な欠勤や追加出勤などのスケジュール変更は、必ず<strong>電話</strong>でご連絡ください。
+                メッセージでの変更は確認漏れの原因となるため、お控えください。
+              </p>
+            </div>
+
+            {!selectedContractForSchedule ? (
+              /* 契約選択画面 */
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="p-6 border-b">
+                  <h3 className="text-lg font-semibold text-gray-800">契約を選択してください</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                    アクティブな契約の勤務スケジュールを確認できます
+                </p>
+              </div>
+              
+              {contracts.filter(c => c.status === 'active').length === 0 ? (
+                <div className="p-8 text-center">
+                  <CalendarIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">アクティブな契約がありません</h3>
+                  <p className="text-gray-600">薬剤師との契約が承認されると、ここに表示されます</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-200">
+                  {contracts.filter(c => c.status === 'active').map((contract) => (
+                    <div key={contract.id} className="p-6 hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-medium text-gray-900">
+                            {contract.pharmacist?.lastName} {contract.pharmacist?.firstName}
+                          </h4>
+                          <p className="text-sm text-gray-600 mt-1">
+                            求人: {contract.application?.jobPosting?.title || '求人情報なし'}
+                          </p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>契約期間: {contract.contractStartDate ? new Date(contract.contractStartDate).toLocaleDateString('ja-JP') : '未設定'} ～ {contract.contractEndDate ? new Date(contract.contractEndDate).toLocaleDateString('ja-JP') : '未設定'}</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => {
+                                setSelectedContractForSchedule(contract);
+                                fetchSchedules(contract.id);
+                            }}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2"
+                          >
+                            <CalendarIcon className="w-5 h-5" />
+                              <span>スケジュール表示</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              </div>
+            ) : (
+              /* カレンダー表示画面 */
+              <div className="space-y-6">
+                {/* ヘッダー */}
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-4">
+                      <button
+                        onClick={() => {
+                          setSelectedContractForSchedule(null);
+                          setSchedules([]);
+                        }}
+                        className="text-gray-600 hover:text-gray-800"
+                      >
+                        ← 戻る
+                      </button>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">
+                          {selectedContractForSchedule.pharmacist?.lastName} {selectedContractForSchedule.pharmacist?.firstName}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {selectedContractForSchedule.application?.jobPosting?.title || '求人情報なし'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setCalendarView('month')}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                          calendarView === 'month'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        月間
+                      </button>
+                      <button
+                        onClick={() => setCalendarView('week')}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                          calendarView === 'week'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        週間
+                      </button>
+                    </div>
+            </div>
+
+                  {/* 契約情報 */}
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="text-xs text-gray-600">契約期間</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {selectedContractForSchedule.contractStartDate 
+                          ? new Date(selectedContractForSchedule.contractStartDate).toLocaleDateString('ja-JP') 
+                          : '未設定'} ～ {selectedContractForSchedule.contractEndDate 
+                          ? new Date(selectedContractForSchedule.contractEndDate).toLocaleDateString('ja-JP') 
+                          : '未設定'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600">予定出勤日数</p>
+                      <p className="text-sm font-medium text-gray-900">{schedules.length}日</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* カレンダー */}
+                <div className="bg-white rounded-lg shadow p-6">
+                  {isLoadingSchedules ? (
+                    <div className="text-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                      <p className="mt-4 text-gray-600">スケジュールを読み込んでいます...</p>
+                    </div>
+                  ) : calendarView === 'month' ? (
+                    /* 月間ビュー */
+                    <div className="pharmacy-calendar">
+                      <Calendar
+                        value={selectedDate}
+                        onChange={(date) => {
+                          setSelectedDate(date as Date);
+                          const dateStr = (date as Date).toISOString().split('T')[0];
+                          const schedule = schedules.find(s => s.workDate.split('T')[0] === dateStr);
+                          if (schedule) {
+                            setSelectedSchedule(schedule);
+                            setShowScheduleDetail(true);
+                          }
+                        }}
+                        tileClassName={({ date }) => {
+                          const dateStr = date.toISOString().split('T')[0];
+                          const hasSchedule = schedules.some(s => s.workDate.split('T')[0] === dateStr);
+                          return hasSchedule ? 'schedule-day' : '';
+                        }}
+                        tileContent={({ date }) => {
+                          const dateStr = date.toISOString().split('T')[0];
+                          const schedule = schedules.find(s => s.workDate.split('T')[0] === dateStr);
+                          if (schedule) {
+                            return (
+                              <div className="text-xs mt-1">
+                                <div className="text-blue-600 font-medium">
+                                  {schedule.scheduledStartTime?.substring(11, 16)} - {schedule.scheduledEndTime?.substring(11, 16)}
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                        locale="ja-JP"
+                      />
+                    </div>
+                  ) : (
+                    /* 週間ビュー */
+                    <div className="space-y-4">
+                      {/* 週ナビゲーション */}
+                      <div className="flex items-center justify-between border-b pb-4">
+                        <button
+                          onClick={() => {
+                            const newDate = new Date(selectedDate);
+                            newDate.setDate(newDate.getDate() - 7);
+                            setSelectedDate(newDate);
+                          }}
+                          className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100"
+                        >
+                          ← 前週
+                        </button>
+                        <div className="text-lg font-semibold">
+                          {(() => {
+                            const start = new Date(selectedDate);
+                            start.setDate(start.getDate() - start.getDay());
+                            const end = new Date(start);
+                            end.setDate(end.getDate() + 6);
+                            return `${start.getMonth() + 1}/${start.getDate()} - ${end.getMonth() + 1}/${end.getDate()}`;
+                          })()}
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newDate = new Date(selectedDate);
+                            newDate.setDate(newDate.getDate() + 7);
+                            setSelectedDate(newDate);
+                          }}
+                          className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100"
+                        >
+                          次週 →
+                        </button>
+                      </div>
+
+                      {/* 週間スケジュールリスト */}
+                      <div className="grid grid-cols-1 gap-3">
+                        {(() => {
+                          const weekStart = new Date(selectedDate);
+                          weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                          
+                          return Array.from({ length: 7 }, (_, i) => {
+                            const date = new Date(weekStart);
+                            date.setDate(date.getDate() + i);
+                            const dateStr = date.toISOString().split('T')[0];
+                            const daySchedule = schedules.find(s => s.workDate.split('T')[0] === dateStr);
+                            
+                            const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+                            const isWeekend = i === 0 || i === 6;
+                            const isToday = dateStr === new Date().toISOString().split('T')[0];
+                            
+                            return (
+                              <div
+                                key={i}
+                                className={`border rounded-lg p-4 transition-all ${
+                                  daySchedule
+                                    ? 'bg-blue-50 border-blue-300 hover:bg-blue-100 cursor-pointer'
+                                    : 'bg-gray-50 border-gray-200'
+                                } ${isToday ? 'ring-2 ring-yellow-400' : ''}`}
+                                onClick={() => {
+                                  if (daySchedule) {
+                                    setSelectedSchedule(daySchedule);
+                                    setShowScheduleDetail(true);
+                                  }
+                                }}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3">
+                                    <div className={`text-center ${isWeekend ? 'text-red-600' : 'text-gray-700'}`}>
+                                      <div className="text-xs font-medium">{dayNames[i]}</div>
+                                      <div className="text-2xl font-bold">{date.getDate()}</div>
+                                    </div>
+                                    {daySchedule ? (
+                                      <div className="flex-1">
+                                        <div className="flex items-center space-x-2">
+                                          <Clock className="w-4 h-4 text-blue-600" />
+                                          <span className="font-semibold text-blue-900">
+                                            {daySchedule.scheduledStartTime?.substring(11, 16)} - {daySchedule.scheduledEndTime?.substring(11, 16)}
+                                          </span>
+                                        </div>
+                                        <div className="text-xs text-gray-600 mt-1">
+                                          休憩 {daySchedule.breakTimeMinutes}分
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="text-sm text-gray-400">休日</div>
+                                    )}
+                                  </div>
+                                  {daySchedule && (
+                                    <div className="text-blue-600">
+                                      <Eye className="w-5 h-5" />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    </div>
+                  )}
+
+                  {schedules.length === 0 && !isLoadingSchedules && (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600">このcontractにスケジュールが登録されていません</p>
+                      <p className="text-sm text-gray-500 mt-2">契約承諾時に自動的にスケジュールが作成されます</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="text-blue-900 font-semibold mb-2">💡 スケジュール表示について</h3>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• 青色でハイライトされた日が勤務予定日です</li>
+                    <li>• 日付をクリックすると、その日のスケジュール詳細が表示されます</li>
+                    <li>• スケジュールは契約承諾時に自動作成されています</li>
+              </ul>
+            </div>
+              </div>
+            )}
+
+            {/* スケジュール詳細モーダル */}
+            {showScheduleDetail && selectedSchedule && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg max-w-md w-full p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">📅 勤務スケジュール詳細</h3>
+                    <button
+                      onClick={() => {
+                        setShowScheduleDetail(false);
+                        setSelectedSchedule(null);
+                      }}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">勤務日</label>
+                      <p className="text-gray-900">
+                        {new Date(selectedSchedule.workDate).toLocaleDateString('ja-JP', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          weekday: 'long'
+                        })}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">勤務時間</label>
+                      <p className="text-gray-900">
+                        {selectedSchedule.scheduledStartTime?.substring(11, 16)} ～ {selectedSchedule.scheduledEndTime?.substring(11, 16)}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">休憩時間</label>
+                      <p className="text-gray-900">{selectedSchedule.breakTimeMinutes}分</p>
+                    </div>
+
+                    {selectedSchedule.notes && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">メモ</label>
+                        <p className="text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedSchedule.notes}</p>
+                      </div>
+                    )}
+
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                      <p className="text-sm text-yellow-800">
+                        💡 スケジュールの変更が必要な場合は、必ず電話でご連絡ください。
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      onClick={() => {
+                        setShowScheduleDetail(false);
+                        setSelectedSchedule(null);
+                      }}
+                      className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
+                    >
+                      閉じる
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
       case '費用管理':
         const feeStatusMap: Record<string, string> = {
           'pending': '支払い待ち',
@@ -2373,14 +2258,14 @@ export default function PharmacyDashboard() {
             {isLoadingFees ? (
               <div className="text-center py-12">
                 <p className="text-gray-600">読み込み中...</p>
-            </div>
+              </div>
             ) : fees.length === 0 ? (
               <div className="bg-white rounded-lg shadow p-8 text-center">
                 <DollarSign className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-800 mb-2">手数料はありません</h3>
                 <p className="text-gray-600">採用が確定すると、手数料が表示されます。</p>
-                </div>
-              ) : (
+              </div>
+            ) : (
               <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -2436,7 +2321,7 @@ export default function PharmacyDashboard() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
+                          <button 
                             onClick={() => setSelectedFee(fee)}
                             className="text-blue-600 hover:text-blue-900"
                           >
@@ -2444,16 +2329,16 @@ export default function PharmacyDashboard() {
                           </button>
                         </td>
                       </tr>
-                  ))}
+                    ))}
                   </tbody>
                 </table>
-                </div>
-              )}
+              </div>
+            )}
 
             {/* 注意事項 */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 className="text-blue-900 font-semibold mb-2">💡 プラットフォーム手数料について</h4>
-                  <ul className="text-sm text-blue-800 space-y-1">
+              <ul className="text-sm text-blue-800 space-y-1">
                 <li>• 手数料は初回出勤日の3日前までにお支払いください</li>
                 <li>• 支払い確認後、薬剤師の個人情報（氏名、電話番号、メールアドレス）が開示されます</li>
                 <li>• 支払い方法については、運営から別途ご連絡いたします</li>
@@ -2466,14 +2351,14 @@ export default function PharmacyDashboard() {
                 <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">手数料詳細</h3>
-                    <button
+                    <button 
                       onClick={() => setSelectedFee(null)}
                       className="text-gray-400 hover:text-gray-600"
                     >
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-
+                  
                   <div className="space-y-4">
                     <div>
                       <h4 className="font-medium text-gray-800 mb-2">基本情報</h4>
@@ -2496,7 +2381,7 @@ export default function PharmacyDashboard() {
                     </div>
 
                     {selectedFee.workContracts && (
-                    <div>
+                      <div>
                         <h4 className="font-medium text-gray-800 mb-2">契約情報</h4>
                         <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                           {selectedFee.workContracts.pharmacistProfiles && (
@@ -2516,13 +2401,13 @@ export default function PharmacyDashboard() {
                           {selectedFee.workContracts.totalCompensation && (
                             <p><span className="font-medium">報酬総額:</span> ¥{selectedFee.workContracts.totalCompensation.toLocaleString()}</p>
                           )}
-                    </div>
+                        </div>
                       </div>
                     )}
                   </div>
-
+                  
                   <div className="flex justify-end space-x-3 mt-6">
-                    <button
+                    <button 
                       onClick={() => setSelectedFee(null)}
                       className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
                     >

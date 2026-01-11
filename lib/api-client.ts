@@ -1,5 +1,6 @@
 // API Base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// 空文字列の場合は相対パスを使用（本番環境）
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? (typeof window !== 'undefined' ? '' : 'http://localhost:3001');
 
 // API Error Class
 export class ApiError extends Error {
