@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>薬剤師キャリアナビ - 働いてから決める、新しい転職のカタチ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+    
+    * {
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    
+    @keyframes blob {
+      0% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(30px, -50px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+    
+    .animate-blob {
+      animation: blob 7s infinite;
+    }
+    
+    .animation-delay-2000 {
+      animation-delay: 2s;
+    }
+    
+    .animation-delay-4000 {
+      animation-delay: 4s;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+
+    .benefit-card {
+      transition: all 0.3s ease;
+    }
+
+    .benefit-card:hover {
+      background: linear-gradient(to bottom right, #14b8a6, #2563eb);
+    }
+
+    .benefit-card:hover .benefit-title,
+    .benefit-card:hover .benefit-description {
+      color: white;
+    }
+
+    .benefit-card:hover img {
+      transform: scale(1.1);
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teal: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              300: '#5eead4',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active-tab');
+      });
+      event.target.classList.add('active-tab');
+      
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      document.getElementById(tab + '-content').classList.add('active');
+    }
+  </script>
+</head>
+<body class="bg-gradient-to-br from-teal-50 via-white to-blue-50">
+  
+  <!-- ヘッダー -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex items-center space-x-2">
+          <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center">
+            <span class="text-white text-xl font-bold">P</span>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+              薬剤師キャリアナビ
+            </h1>
+            <p class="text-xs text-gray-500">理想のキャリアを、一緒に</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button class="text-gray-700 hover:text-teal-600 transition-colors">
+            ログイン
+          </button>
+          <button class="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all hover:scale-105">
+            無料登録
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ファーストビュー -->
+  <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <!-- 背景画像 -->
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-blue-50 opacity-95"></div>
+      <img 
+        src="https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=1920&h=1080&fit=crop" 
+        alt="薬剤師" 
+        class="w-full h-full object-cover opacity-20"
+      />
+    </div>
+
+    <!-- アニメーション背景 -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-10">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+      <div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-20">
+      <div class="text-center max-w-4xl mx-auto">
+        <div class="inline-block mb-4 px-4 py-2 bg-teal-100 text-teal-700 rounded-full text-sm font-medium">
+          ✨ トライアル勤務で、失敗しない転職を実現
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+          <span class="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+            働いてから決める、
+          </span>
+          <br>
+          <span class="text-gray-900">
+            新しい転職のカタチ。
+          </span>
+        </h1>
+
+        <p class="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed">
+          トライアル勤務で職場を体験。<br class="hidden md:block">
+          <span class="font-bold text-teal-600">給料をもらいながら</span>、本当に合う職場を見つけられる。
+        </p>
+
+        <!-- 薬剤師・薬局の2つの登録ボタン -->
+        <div class="flex flex-col gap-6 items-center mb-8">
+          <div class="w-full max-w-2xl">
+            <div class="text-sm font-medium text-gray-700 mb-2 text-center">
+              💊 薬剤師の方
+            </div>
+            <button class="w-full px-10 py-5 bg-gradient-to-r from-teal-500 to-blue-600 text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-102 hover:-translate-y-1">
+              <span class="flex items-center justify-center gap-2">
+                薬剤師として無料登録
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+            </button>
+          </div>
+
+          <div class="w-full max-w-2xl">
+            <div class="text-sm font-medium text-gray-700 mb-2 text-center">
+              🏥 薬局・病院の採用担当者の方
+            </div>
+            <button class="w-full px-10 py-5 bg-white text-gray-700 text-lg font-bold rounded-2xl border-2 border-teal-500 hover:bg-teal-50 transition-all hover:scale-102">
+              <span class="flex items-center justify-center gap-2">
+                採用担当者として登録
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+          <button class="px-8 py-3 bg-white text-teal-600 text-base font-medium rounded-xl border border-gray-200 hover:border-teal-300 hover:bg-teal-50 transition-all">
+            サービス詳細を見る
+          </button>
+        </div>
+
+        <div class="mt-8 text-sm text-gray-500">
+          登録完了まで約1分 | 完全無料 | トライアル勤務可能
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 統計データ -->
+  <section class="py-16 px-4 bg-white/70 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-black bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
+            95%
+          </div>
+          <div class="text-gray-600 font-medium">トライアル後の本採用率</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-black bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
+            5,000+
+          </div>
+          <div class="text-gray-600 font-medium">提携薬局・病院</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-black bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
+            100%
+          </div>
+          <div class="text-gray-600 font-medium">満足保証（合わなければ次へ）</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-black bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
+            0円
+          </div>
+          <div class="text-gray-600 font-medium">薬剤師の利用料金</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- サービスの特徴 -->
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+          選ばれる理由
+        </h2>
+        <p class="text-xl text-gray-600">
+          薬剤師の方も、薬局・病院の方も安心してご利用いただけます
+        </p>
+      </div>
+
+      <!-- タブ切り替え -->
+      <div class="flex justify-center mb-12">
+        <div class="inline-flex bg-gray-100 rounded-full p-1">
+          <button
+            class="tab-button active-tab px-8 py-3 rounded-full font-bold transition-all"
+            onclick="switchTab('pharmacist')"
+          >
+            💊 薬剤師の方
+          </button>
+          <button
+            class="tab-button px-8 py-3 rounded-full font-bold transition-all text-gray-600 hover:text-gray-900"
+            onclick="switchTab('pharmacy')"
+          >
+            🏥 薬局・病院の方
+          </button>
+        </div>
+      </div>
+
+      <style>
+        .active-tab {
+          background: linear-gradient(to right, #14b8a6, #2563eb);
+          color: white;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+      </style>
+
+      <!-- 薬剤師向けメリット -->
+      <div id="pharmacist-content" class="tab-content active space-y-8">
+        <!-- カード1: 左に写真、右にテキスト -->
+        <div class="benefit-card bg-white rounded-3xl overflow-hidden shadow-lg">
+          <div class="flex flex-col md:flex-row items-center">
+            <div class="w-full md:w-1/2 h-64 md:h-80 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop" 
+                alt="実際に働いてから転職を判断"
+                class="w-full h-full object-cover transition-transform duration-300"
+              />
+            </div>
+            <div class="w-full md:w-1/2 p-8 md:p-12">
+              <h3 class="benefit-title text-2xl md:text-3xl font-bold mb-4 text-gray-900 transition-colors">
+                実際に働いてから転職を判断
+              </h3>
+              <p class="benefit-description text-lg leading-relaxed text-gray-600 transition-colors">
+                トライアル勤務で職場の雰囲気、人間関係、業務内容を体験してから本採用を決定できます。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- カード2: 右に写真、左にテキスト -->
+        <div class="benefit-card bg-white rounded-3xl overflow-hidden shadow-lg">
+          <div class="flex flex-col md:flex-row-reverse items-center">
+            <div class="w-full md:w-1/2 h-64 md:h-80 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop" 
+                alt="給料をもらいながら転職活動"
+                class="w-full h-full object-cover transition-transform duration-300"
+              />
+            </div>
+            <div class="w-full md:w-1/2 p-8 md:p-12">
+              <h3 class="benefit-title text-2xl md:text-3xl font-bold mb-4 text-gray-900 transition-colors">
+                給料をもらいながら転職活動
+              </h3>
+              <p class="benefit-description text-lg leading-relaxed text-gray-600 transition-colors">
+                トライアル期間中も時給が発生。収入を得ながら自分に合う職場を探せます。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 薬局向けメリット -->
+      <div id="pharmacy-content" class="tab-content space-y-8">
+        <!-- カード1: 左に写真、右にテキスト -->
+        <div class="benefit-card bg-white rounded-3xl overflow-hidden shadow-lg">
+          <div class="flex flex-col md:flex-row items-center">
+            <div class="w-full md:w-1/2 h-64 md:h-80 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1551076805-e1869033e561?w=800&h=600&fit=crop" 
+                alt="実際の働きを見てから採用"
+                class="w-full h-full object-cover transition-transform duration-300"
+              />
+            </div>
+            <div class="w-full md:w-1/2 p-8 md:p-12">
+              <h3 class="benefit-title text-2xl md:text-3xl font-bold mb-4 text-gray-900 transition-colors">
+                実際の働きを見てから採用
+              </h3>
+              <p class="benefit-description text-lg leading-relaxed text-gray-600 transition-colors">
+                トライアル勤務で実際のスキル、人柄、職場との相性を確認してから本採用を判断できます。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- カード2: 右に写真、左にテキスト -->
+        <div class="benefit-card bg-white rounded-3xl overflow-hidden shadow-lg">
+          <div class="flex flex-col md:flex-row-reverse items-center">
+            <div class="w-full md:w-1/2 h-64 md:h-80 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop" 
+                alt="採用コストを大幅削減"
+                class="w-full h-full object-cover transition-transform duration-300"
+              />
+            </div>
+            <div class="w-full md:w-1/2 p-8 md:p-12">
+              <h3 class="benefit-title text-2xl md:text-3xl font-bold mb-4 text-gray-900 transition-colors">
+                採用コストを大幅削減
+              </h3>
+              <p class="benefit-description text-lg leading-relaxed text-gray-600 transition-colors">
+                紹介手数料不要。トライアル期間の時給のみで、低コストで優秀な人材を採用できます。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 利用の流れ -->
+  <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+          ご利用の流れ
+        </h2>
+        <p class="text-xl text-gray-600">
+          シンプルな4ステップで、理想の職場へ
+        </p>
+      </div>
+
+      <div class="relative">
+        <div class="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-blue-500 to-purple-500 transform -translate-y-1/2 z-0"></div>
+
+        <div class="grid md:grid-cols-4 gap-8 relative z-10">
+          <div class="relative">
+            <div class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all group">
+              <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-black shadow-lg group-hover:scale-110 transition-transform">
+                1
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2 text-center">
+                無料登録
+              </h3>
+              <p class="text-gray-600 text-center">1分で完了</p>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all group">
+              <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-black shadow-lg group-hover:scale-110 transition-transform">
+                2
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2 text-center">
+                求人応募 / 応募者確認
+              </h3>
+              <p class="text-gray-600 text-center">気になる求人に応募</p>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all group">
+              <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-black shadow-lg group-hover:scale-110 transition-transform">
+                3
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2 text-center">
+                トライアル勤務開始
+              </h3>
+              <p class="text-gray-600 text-center">実際に働いてみる</p>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all group">
+              <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-black shadow-lg group-hover:scale-110 transition-transform">
+                4
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2 text-center">
+                本採用決定
+              </h3>
+              <p class="text-gray-600 text-center">双方が納得したら</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- トライアル勤務とは -->
+  <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-gray-50">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+          トライアル勤務とは？
+        </h2>
+        <p class="text-xl text-gray-600">
+          実際に働いてから判断できる、新しい転職の仕組み
+        </p>
+      </div>
+
+      <div class="max-w-5xl mx-auto">
+        <!-- ヒーロー画像 -->
+        <div class="mb-8 rounded-3xl overflow-hidden shadow-xl">
+          <img 
+            src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&h=600&fit=crop" 
+            alt="薬局での仕事風景" 
+            class="w-full h-64 md:h-96 object-cover"
+          />
+        </div>
+
+        <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl mb-8">
+          <p class="text-lg text-gray-700 leading-relaxed mb-6">
+            従来の転職では、入社してから「想像と違った...」と後悔することも。
+          </p>
+          <p class="text-lg text-gray-700 leading-relaxed mb-8">
+            当サービスの<span class="font-bold text-teal-600">トライアル勤務</span>なら、<br>
+            実際に働いてから判断できるので、<span class="font-bold text-teal-600">失敗しない転職</span>が実現します。
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-8">
+            <div class="bg-teal-50 rounded-2xl p-6">
+              <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="text-2xl">💰</span>
+                トライアル期間中
+              </h3>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-2 text-gray-700">
+                  <span class="text-teal-600 font-bold mt-1">✓</span>
+                  <span>時給が発生（給料をもらいながら体験）</span>
+                </li>
+                <li class="flex items-start gap-2 text-gray-700">
+                  <span class="text-teal-600 font-bold mt-1">✓</span>
+                  <span>簡単な勤怠管理</span>
+                </li>
+                <li class="flex items-start gap-2 text-gray-700">
+                  <span class="text-teal-600 font-bold mt-1">✓</span>
+                  <span>いつでも次の職場を探せる</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="bg-blue-50 rounded-2xl p-6">
+              <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="text-2xl">🔍</span>
+                本採用前に確認できること
+              </h3>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-2 text-gray-700">
+                  <span class="text-blue-600 font-bold mt-1">✓</span>
+                  <span>職場の雰囲気・人間関係</span>
+                </li>
+                <li class="flex items-start gap-2 text-gray-700">
+                  <span class="text-blue-600 font-bold mt-1">✓</span>
+                  <span>実際の業務内容・忙しさ</span>
+                </li>
+                <li class="flex items-start gap-2 text-gray-700">
+                  <span class="text-blue-600 font-bold mt-1">✓</span>
+                  <span>通勤のしやすさ</span>
+                </li>
+                <li class="flex items-start gap-2 text-gray-700">
+                  <span class="text-blue-600 font-bold mt-1">✓</span>
+                  <span>働きやすさ・相性</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTAセクション -->
+  <section class="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-teal-600 via-blue-600 to-purple-600 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-0 left-0 w-full h-full" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+    </div>
+
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <h2 class="text-4xl md:text-6xl font-black text-white mb-6">
+        まずはトライアル勤務で<br>
+        本当に合う職場を見つけませんか？
+      </h2>
+      <p class="text-xl md:text-2xl text-white/90 mb-10">
+        登録も利用も完全無料。気軽に始められます。
+      </p>
+
+      <button class="px-12 py-6 bg-white text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600 text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105 hover:-translate-y-1 inline-flex items-center gap-3">
+        今すぐ無料登録
+        <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </button>
+
+      <div class="mt-8 flex flex-wrap justify-center gap-8 text-white/80 text-sm">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          完全無料
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          登録1分
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          トライアル勤務可能
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- フッター -->
+  <footer class="bg-gray-900 text-white py-12 px-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h3 class="font-bold text-lg mb-4">薬剤師キャリアナビ</h3>
+          <p class="text-gray-400 text-sm">
+            理想のキャリアを実現する転職支援サービス
+          </p>
+        </div>
+        <div>
+          <h4 class="font-bold mb-4">サービス</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#" class="hover:text-teal-400 transition-colors">求人検索</a></li>
+            <li><a href="#" class="hover:text-teal-400 transition-colors">トライアル勤務</a></li>
+            <li><a href="#" class="hover:text-teal-400 transition-colors">転職ガイド</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-4">会社情報</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#" class="hover:text-teal-400 transition-colors">会社概要</a></li>
+            <li><a href="#" class="hover:text-teal-400 transition-colors">採用情報</a></li>
+            <li><a href="#" class="hover:text-teal-400 transition-colors">お問い合わせ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-4">その他</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#" class="hover:text-teal-400 transition-colors">利用規約</a></li>
+            <li><a href="#" class="hover:text-teal-400 transition-colors">プライバシーポリシー</a></li>
+            <li><a href="#" class="hover:text-teal-400 transition-colors">特定商取引法</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
+        <p>&copy; 2024 Pharmacist Career Navi. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

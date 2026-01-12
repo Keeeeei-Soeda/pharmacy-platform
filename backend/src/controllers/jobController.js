@@ -29,7 +29,8 @@ const createJob = async (req, res) => {
       requirements,
       benefits,
       applicationDeadline,
-      maxApplicants
+      maxApplicants,
+      preferredSchedule
     } = req.body;
 
     // 必須フィールドの検証
@@ -109,7 +110,8 @@ const createJob = async (req, res) => {
         application_deadline: applicationDeadline ? new Date(applicationDeadline) : null,
         status: 'active', // デフォルトで公開
         max_applicants: maxApplicants ? parseInt(maxApplicants) : null,
-        current_applicants: 0
+        current_applicants: 0,
+        preferred_schedule: preferredSchedule
       },
       include: {
         pharmacy_profiles: {
@@ -416,6 +418,7 @@ const updateJob = async (req, res) => {
       data.application_deadline = updateData.applicationDeadline ? new Date(updateData.applicationDeadline) : null;
     }
     if (updateData.maxApplicants !== undefined) data.max_applicants = parseInt(updateData.maxApplicants);
+    if (updateData.preferredSchedule !== undefined) data.preferred_schedule = updateData.preferredSchedule;
 
     // 求人更新
     const updatedJob = await prisma.job_postings.update({

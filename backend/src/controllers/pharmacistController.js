@@ -126,6 +126,18 @@ const getProfile = async (req, res) => {
         experienceYears: profile.experience_years,
         specialties: profile.specialties,
         bio: profile.bio,
+        // 新規追加フィールド
+        age: profile.age,
+        licenseAcquiredYear: profile.license_acquired_year,
+        certifiedPharmacistQualifications: profile.certified_pharmacist_qualifications,
+        otherQualifications: profile.other_qualifications,
+        workExperienceMonths: profile.work_experience_months,
+        workExperienceTypes: profile.work_experience_types,
+        mainJobExperiences: profile.main_job_experiences,
+        specialtyFields: profile.specialty_fields,
+        pharmacySystemsExperience: profile.pharmacy_systems_experience,
+        specialNotes: profile.special_notes,
+        selfIntroduction: profile.self_introduction,
         createdAt: profile.created_at,
         updatedAt: profile.updated_at
       }
@@ -175,7 +187,19 @@ const updateProfile = async (req, res) => {
       graduationYear: 'graduation_year',
       experienceYears: 'experience_years',
       specialties: 'specialties',
-      bio: 'bio'
+      bio: 'bio',
+      // 新規追加フィールド
+      age: 'age',
+      licenseAcquiredYear: 'license_acquired_year',
+      certifiedPharmacistQualifications: 'certified_pharmacist_qualifications',
+      otherQualifications: 'other_qualifications',
+      workExperienceMonths: 'work_experience_months',
+      workExperienceTypes: 'work_experience_types',
+      mainJobExperiences: 'main_job_experiences',
+      specialtyFields: 'specialty_fields',
+      pharmacySystemsExperience: 'pharmacy_systems_experience',
+      specialNotes: 'special_notes',
+      selfIntroduction: 'self_introduction'
     };
 
     // 動的UPDATE文の構築

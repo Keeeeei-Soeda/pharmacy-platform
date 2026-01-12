@@ -321,6 +321,20 @@ const getApplicationsForPharmacy = async (req, res) => {
             phone: true,
             has_drivers_license: true,
             has_home_care_experience: true,
+            // 新規追加フィールド
+            age: true,
+            graduation_university: true,
+            graduation_year: true,
+            license_acquired_year: true,
+            certified_pharmacist_qualifications: true,
+            other_qualifications: true,
+            work_experience_months: true,
+            work_experience_types: true,
+            main_job_experiences: true,
+            specialty_fields: true,
+            pharmacy_systems_experience: true,
+            special_notes: true,
+            self_introduction: true,
             users: {
               select: {
                 email: true
@@ -356,11 +370,46 @@ const getApplicationsForPharmacy = async (req, res) => {
               }
             }
           }
+        },
+        work_contracts: {
+          select: {
+            id: true,
+            platform_fee_status: true,
+            personal_info_disclosed: true
+          },
+          orderBy: {
+            created_at: 'desc'
+          },
+          take: 1
         }
       }
     });
 
-    res.json({ applications });
+    // 個人情報開示制御：手数料未払いの場合は個人情報をマスク
+    const processedApplications = applications.map(app => {
+      const contract = app.work_contracts && app.work_contracts.length > 0 ? app.work_contracts[0] : null;
+      const isPersonalInfoDisclosed = contract && contract.personal_info_disclosed;
+
+      // 手数料が支払い済みでない場合は個人情報をマスク
+      if (!isPersonalInfoDisclosed) {
+        return {
+          ...app,
+          pharmacist_profiles: {
+            ...app.pharmacist_profiles,
+            first_name: app.pharmacist_profiles.first_name ? app.pharmacist_profiles.first_name.charAt(0) + '◯◯' : '◯◯◯',
+            last_name: app.pharmacist_profiles.last_name ? app.pharmacist_profiles.last_name.charAt(0) + '◯◯' : '◯◯◯',
+            phone: '***-****-****',
+            users: {
+              email: '*****@*****.***'
+            }
+          }
+        };
+      }
+
+      return app;
+    });
+
+    res.json({ applications: processedApplications });
 
   } catch (error) {
     console.error('Get applications for pharmacy error:', error);

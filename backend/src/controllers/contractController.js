@@ -1,5 +1,6 @@
 const prisma = require('../database/prisma');
 const { mapWorkContract } = require('../utils/dto');
+const { generateWorkNoticePDF } = require('../utils/pdfGenerator');
 
 // 労働条件通知書テンプレート生成
 const generateWorkNotice = (contract, pharmacy, pharmacist, jobPosting) => {
@@ -219,7 +220,7 @@ const acceptJobOffer = async (req, res) => {
       return res.status(400).json({ error: 'この契約は既に処理済みです' });
     }
 
-    // 労働条件通知書を生成
+    // 労働条件通知書を生成（テキスト形式 - 後方互換性のため保持）
     const workNotice = generateWorkNotice(
       contract,
       contract.pharmacy_profiles,
@@ -231,6 +232,25 @@ const acceptJobOffer = async (req, res) => {
     console.log('Daily rate from job posting:', contract.job_applications.job_postings.daily_rate);
     console.log('Scheduled work days from job posting:', contract.job_applications.job_postings.scheduled_work_days);
 
+    // 労働条件通知書PDFを生成
+    let workNoticePDF = null;
+    try {
+      workNoticePDF = await generateWorkNoticePDF({
+        contractId: contract.id,
+        pharmacyName: contract.pharmacy_profiles.pharmacy_name,
+        pharmacyAddress: `${contract.pharmacy_profiles.prefecture || ''} ${contract.pharmacy_profiles.city || ''}`.trim(),
+        pharmacistName: `${contract.pharmacist_profiles.last_name} ${contract.pharmacist_profiles.first_name}`,
+        startDate: contract.initial_work_date || contract.start_date || new Date(),
+        workDays: contract.work_days || 30,
+        jobDescription: contract.job_applications?.job_postings?.description || '調剤業務、服薬指導等',
+        workHours: contract.job_applications?.job_postings?.work_hours || '薬局と協議の上決定'
+      });
+      console.log('Work notice PDF generated:', workNoticePDF);
+    } catch (pdfError) {
+      console.error('Failed to generate work notice PDF:', pdfError);
+      // PDF生成失敗してもメインの処理は継続
+    }
+
     // 契約を承諾し、スケジュールを自動作成
     const updatedContract = await prisma.$transaction(async (tx) => {
       // 契約を承諾
@@ -240,7 +260,8 @@ const acceptJobOffer = async (req, res) => {
           status: 'active',
           accepted_at: new Date(),
           terms: workNotice,
-          daily_rate: contract.job_applications?.job_postings?.daily_rate || null,
+          work_notice_url: workNoticePDF ? workNoticePDF.url : null,
+          daily_rate: contract.job_applications?.job_postings?.daily_rate || 25000,
           scheduled_work_days: contract.job_applications?.job_postings?.scheduled_work_days || []
         }
       });
@@ -328,7 +349,11 @@ const acceptJobOffer = async (req, res) => {
     res.json({
       message: '契約を承諾しました',
       contract: mapWorkContract(contractForResponse || updatedContract),
-      workNotice
+      workNotice,
+      workNoticePDF: workNoticePDF ? {
+        url: workNoticePDF.url,
+        fileName: workNoticePDF.fileName
+      } : null
     });
 
   } catch (error) {

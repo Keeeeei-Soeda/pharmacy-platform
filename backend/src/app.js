@@ -37,6 +37,8 @@ app.use('/api/pharmacies', require('./routes/pharmacies'));
 app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/applications', require('./routes/applications'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/structured-messages', require('./routes/structuredMessages'));
+app.use('/api/platform-fees', require('./routes/platformFees'));
 app.use('/api/contracts', require('./routes/contracts'));
 app.use('/api/schedules', require('./routes/schedules'));
 app.use('/api/attendance', require('./routes/attendance'));
