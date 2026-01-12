@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -66,40 +67,45 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
       {/* ヘッダー */}
       <motion.header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
-        }`}
+        className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xl font-bold">P</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-                  薬ナビ
-                </h1>
-                <p className="text-xs text-gray-500">理想のキャリアを、一緒に</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo_yakunavi.png"
+                alt="薬ナビ"
+                width={200}
+                height={60}
+                className="h-12 w-auto object-contain"
+                priority
+              />
+            </Link>
+            <div className="flex items-center space-x-3">
               <Link
                 href="/auth/login"
-                className="text-gray-700 hover:text-teal-600 transition-colors"
+                className="text-gray-700 hover:text-teal-600 transition-colors text-sm"
               >
                 ログイン
               </Link>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link
                   href="/auth/register/pharmacist"
-                  className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all inline-block"
+                  className="px-4 py-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-full text-sm font-medium shadow-lg hover:shadow-xl transition-all inline-block"
                 >
-                  無料登録
+                  💊 薬剤師登録
                 </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                  href="/auth/register/pharmacy"
+                  className="px-4 py-2 bg-white text-teal-600 border-2 border-teal-500 rounded-full text-sm font-medium hover:bg-teal-50 transition-all inline-block"
+              >
+                  🏥 薬局登録
+              </Link>
               </motion.div>
             </div>
           </div>
@@ -181,7 +187,7 @@ export default function Home() {
                   🏥 薬局・病院の採用担当者の方
                 </div>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Link
+              <Link
                     href="/auth/register/pharmacy"
                     className="w-full px-10 py-5 bg-white text-gray-700 text-lg font-bold rounded-2xl border-2 border-teal-500 hover:bg-teal-50 transition-all inline-flex items-center justify-center gap-2"
                   >

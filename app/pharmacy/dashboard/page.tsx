@@ -22,7 +22,8 @@ import {
   X,
   Edit,
   Save,
-  Calendar
+  Calendar,
+  Home
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import { 
@@ -54,7 +55,7 @@ import {
 } from '@/lib/api';
 import type { JobPosting, JobApplication, MessageThread as APIMessageThread, Message } from '@/lib/api';
 
-type ActiveMenu = '応募確認' | 'メッセージ' | '募集掲載' | '契約管理' | 'プロフィール管理' | 'プロフィール' | '費用管理';
+type ActiveMenu = 'ホーム' | '応募確認' | 'メッセージ' | '募集掲載' | '契約管理' | 'プロフィール管理' | 'プロフィール' | '費用管理';
 
 interface Employee {
   id: number;
@@ -67,7 +68,7 @@ interface Employee {
 
 export default function PharmacyDashboard() {
   const router = useRouter();
-  const [activeMenu, setActiveMenu] = useState<ActiveMenu>('応募確認');
+  const [activeMenu, setActiveMenu] = useState<ActiveMenu>('ホーム');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   
@@ -135,6 +136,7 @@ export default function PharmacyDashboard() {
   });
 
   const menuItems = [
+    { id: 'ホーム' as ActiveMenu, label: 'ホーム', icon: Home },
     { id: '応募確認' as ActiveMenu, label: '薬剤師からの応募確認', icon: Users },
     { id: 'メッセージ' as ActiveMenu, label: 'メッセージ管理', icon: MessageSquare },
     { id: '募集掲載' as ActiveMenu, label: '薬局からの募集掲載', icon: FileText },
@@ -562,6 +564,213 @@ export default function PharmacyDashboard() {
 
   const renderContent = () => {
     switch (activeMenu) {
+      case 'ホーム':
+        // ダミーデータ
+        const activeJobsCount = jobPostings.filter(job => job.status === 'active').length || 5;
+        const totalApplications = applications.length || 12;
+        const activeWorkers = contracts.filter(c => c.status === 'accepted' && c.isActive).length || 3;
+        const pendingContracts = contracts.filter(c => c.status === 'pending').length || 2;
+
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">ダッシュボード</h2>
+              <div className="text-sm text-gray-500">
+                最終更新: {new Date().toLocaleString('ja-JP')}
+              </div>
+            </div>
+
+            {/* 統計カード */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* 現在募集中の案件 */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                <div className="flex items-center justify-between mb-4">
+                  <FileText className="w-8 h-8 opacity-80" />
+                </div>
+                <div className="mb-2">
+                  <div className="text-4xl font-bold mb-1">
+                    {activeJobsCount}
+                  </div>
+                  <div className="text-lg font-medium opacity-90">件</div>
+                </div>
+                <h3 className="text-lg font-semibold mb-1">現在募集中の案件</h3>
+                <p className="text-blue-100 text-sm">アクティブな求人</p>
+              </div>
+
+              {/* 応募された薬剤師数 */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                <div className="flex items-center justify-between mb-4">
+                  <Users className="w-8 h-8 opacity-80" />
+                </div>
+                <div className="mb-2">
+                  <div className="text-4xl font-bold mb-1">
+                    {totalApplications}
+                  </div>
+                  <div className="text-lg font-medium opacity-90">名</div>
+                </div>
+                <h3 className="text-lg font-semibold mb-1">応募された薬剤師数</h3>
+                <p className="text-blue-100 text-sm">総応募者数</p>
+              </div>
+
+              {/* 現在の稼働数 */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                <div className="flex items-center justify-between mb-4">
+                  <UserCheck className="w-8 h-8 opacity-80" />
+                </div>
+                <div className="mb-2">
+                  <div className="text-4xl font-bold mb-1">
+                    {activeWorkers}
+                  </div>
+                  <div className="text-lg font-medium opacity-90">名</div>
+                </div>
+                <h3 className="text-lg font-semibold mb-1">現在の稼働数</h3>
+                <p className="text-blue-100 text-sm">アクティブな契約</p>
+              </div>
+
+              {/* 契約書確認 */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                <div className="flex items-center justify-between mb-4">
+                  <FileText className="w-8 h-8 opacity-80" />
+                </div>
+                <div className="mb-2">
+                  <div className="text-4xl font-bold mb-1">
+                    {pendingContracts}
+                  </div>
+                  <div className="text-lg font-medium opacity-90">件</div>
+                </div>
+                <h3 className="text-lg font-semibold mb-1">契約書確認</h3>
+                <p className="text-blue-100 text-sm">確認待ち</p>
+              </div>
+            </div>
+
+            {/* 詳細セクション */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 最近の応募 */}
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                    <Users className="w-5 h-5 mr-2 text-blue-500" />
+                    最近の応募
+                  </h3>
+                  <button
+                    onClick={() => setActiveMenu('応募確認')}
+                    className="text-blue-500 hover:text-blue-600 text-sm font-medium"
+                  >
+                    すべて見る →
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {applications.slice(0, 5).map((app) => (
+                    <div key={app.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="w-5 h-5 text-blue-500" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-800">
+                            {app.pharmacist?.firstName} {app.pharmacist?.lastName}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(app.appliedAt || '').toLocaleDateString('ja-JP')}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        app.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {app.status === 'pending' ? '新規' : app.status === 'accepted' ? '承認済み' : app.status}
+                      </span>
+                    </div>
+                  ))}
+                  {applications.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                      <p>応募がありません</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* アクティブな求人 */}
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                    <FileText className="w-5 h-5 mr-2 text-blue-500" />
+                    アクティブな求人
+                  </h3>
+                  <button
+                    onClick={() => setActiveMenu('募集掲載')}
+                    className="text-blue-500 hover:text-blue-600 text-sm font-medium"
+                  >
+                    すべて見る →
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {jobPostings.filter(job => job.status === 'active').slice(0, 5).map((job) => (
+                    <div key={job.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-800 mb-1">{job.title}</p>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span className="flex items-center">
+                            <Users className="w-4 h-4 mr-1" />
+                            {job.currentApplicants || 0}名応募
+                          </span>
+                          <span className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-1" />
+                            {job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString('ja-JP') : '期限なし'}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="ml-4 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                        募集中
+                      </span>
+                    </div>
+                  ))}
+                  {jobPostings.filter(job => job.status === 'active').length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <FileText className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                      <p>アクティブな求人がありません</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* クイックアクション */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">クイックアクション</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button
+                  onClick={() => {
+                    setShowJobModal(true);
+                    setEditingJob(null);
+                    resetJobForm();
+                  }}
+                  className="flex items-center justify-center space-x-2 p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span className="font-medium">新しい求人を投稿</span>
+                </button>
+                <button
+                  onClick={() => setActiveMenu('応募確認')}
+                  className="flex items-center justify-center space-x-2 p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+                >
+                  <Eye className="w-5 h-5" />
+                  <span className="font-medium">応募を確認</span>
+                </button>
+                <button
+                  onClick={() => setActiveMenu('契約管理')}
+                  className="flex items-center justify-center space-x-2 p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+                >
+                  <FileText className="w-5 h-5" />
+                  <span className="font-medium">契約を管理</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
       case '応募確認':
         const pendingApplications = applications.filter(app => app.status === 'pending' || app.status === 'under_review');
         const statusMap: Record<string, string> = {
