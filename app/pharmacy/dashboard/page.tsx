@@ -568,7 +568,7 @@ export default function PharmacyDashboard() {
         // ダミーデータ
         const activeJobsCount = jobPostings.filter(job => job.status === 'active').length || 5;
         const totalApplications = applications.length || 12;
-        const activeWorkers = contracts.filter(c => c.status === 'accepted' && c.isActive).length || 3;
+        const activeWorkers = contracts.filter(c => c.status === 'active' && c.isActive).length || 3;
         const pendingContracts = contracts.filter(c => c.status === 'pending').length || 2;
 
         return (
