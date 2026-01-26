@@ -2728,9 +2728,60 @@ export default function PharmacyDashboard() {
                     </div>
                       </div>
                     )}
+
+                    {/* 請求書ダウンロード */}
+                    {selectedFee.invoiceUrl && (
+                      <div>
+                        <h4 className="font-medium text-gray-800 mb-2">📄 請求書</h4>
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600 mb-1">プラットフォーム手数料請求書</p>
+                              <p className="text-xs text-gray-500">PDF形式でダウンロードできます</p>
+                            </div>
+                            <div className="flex space-x-2">
+                              <a
+                                href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${selectedFee.invoiceUrl}`}
+                                download
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center space-x-2"
+                              >
+                                <FileText className="w-4 h-4" />
+                                <span>ダウンロード</span>
+                              </a>
+                              <button
+                                onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${selectedFee.invoiceUrl}`, '_blank')}
+                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center space-x-2"
+                              >
+                                <Eye className="w-4 h-4" />
+                                <span>プレビュー</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 重要事項 */}
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <h4 className="text-yellow-900 font-semibold mb-2">⚠️ 重要事項</h4>
+                      <ul className="text-sm text-yellow-800 space-y-1">
+                        <li>• 支払い期限までにお支払いがない場合、契約は自動キャンセルされます</li>
+                        <li>• 支払い確認後、薬剤師の個人情報（氏名・電話番号・メールアドレス）が開示されます</li>
+                        <li>• 薬剤師への報酬は体験期間終了後に直接お支払いください</li>
+                      </ul>
+                    </div>
                   </div>
 
                   <div className="flex justify-end space-x-3 mt-6">
+                    {selectedFee.invoiceUrl && (
+                      <a
+                        href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${selectedFee.invoiceUrl}`}
+                        download
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium"
+                      >
+                        請求書をダウンロード
+                      </a>
+                    )}
                     <button
                       onClick={() => setSelectedFee(null)}
                       className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"

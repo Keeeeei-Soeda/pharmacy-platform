@@ -1265,10 +1265,70 @@ export default function PharmacistDashboard() {
 
                       {selectedContract.status === 'active' && selectedContract.terms && (
                         <div>
-                          <h4 className="font-medium text-gray-700 mb-2">労働条件通知書</h4>
-                          <pre className="bg-gray-50 p-4 rounded-lg text-sm whitespace-pre-wrap font-mono">
-                            {selectedContract.terms}
-                          </pre>
+                          <h4 className="font-medium text-gray-700 mb-2">📋 労働条件通知書</h4>
+                          
+                          {/* PDF版のダウンロード */}
+                          {selectedContract.workNoticeUrl && (
+                            <div className="mb-4">
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <p className="text-sm font-medium text-blue-900 mb-1">PDF版</p>
+                                    <p className="text-xs text-blue-700">正式な労働条件通知書です</p>
+                                  </div>
+                                  <div className="flex space-x-2">
+                                    <a
+                                      href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${selectedContract.workNoticeUrl}`}
+                                      download
+                                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center space-x-2"
+                                    >
+                                      <FileText className="w-4 h-4" />
+                                      <span>PDF ダウンロード</span>
+                                    </a>
+                                    <button
+                                      onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${selectedContract.workNoticeUrl}`, '_blank')}
+                                      className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center space-x-2"
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                      <span>プレビュー</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* テキスト版 */}
+                          <div className="mb-2">
+                            <p className="text-sm font-medium text-gray-700 mb-2">テキスト版（参考）</p>
+                            <pre className="bg-gray-50 p-4 rounded-lg text-sm whitespace-pre-wrap font-mono border border-gray-200">
+                              {selectedContract.terms}
+                            </pre>
+                          </div>
+                          
+                          {/* テキスト版のダウンロードボタン */}
+                          <button
+                            onClick={() => {
+                              const blob = new Blob([selectedContract.terms || ''], { type: 'text/plain' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `労働条件通知書_${selectedContract.pharmacy?.pharmacyName}_${new Date().toISOString().split('T')[0]}.txt`;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(url);
+                            }}
+                            className="text-sm text-blue-600 hover:text-blue-800 underline"
+                          >
+                            📄 テキストファイルとしてダウンロード
+                          </button>
+                          
+                          <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
+                            <p className="text-xs text-green-800">
+                              💡 この労働条件通知書は契約成立時に自動生成されました。大切に保管してください。
+                            </p>
+                          </div>
                         </div>
                       )}
 
