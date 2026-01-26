@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Search, 
-  FileText, 
+import {
+  Search,
+  FileText,
   Bell,
   LogOut,
   MapPin,
@@ -21,10 +21,10 @@ import {
   XCircle
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
-import { 
-  getJobs, 
-  applyToJob, 
-  getMyApplications, 
+import {
+  getJobs,
+  applyToJob,
+  getMyApplications,
   getMyThreads,
   getMessagesByThread,
   sendMessage,
@@ -121,7 +121,7 @@ const CERTIFIED_QUALIFICATIONS = [
 
 export default function PharmacistDashboard() {
   const router = useRouter();
-  
+
   // localStorageから前回のタブを復元（初回は'募集検索'）
   const [activeMenu, setActiveMenu] = useState<ActiveMenu>(() => {
     if (typeof window !== 'undefined') {
@@ -132,25 +132,25 @@ export default function PharmacistDashboard() {
     }
     return '募集検索';
   });
-  
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
-  
+
   // API Data States
   const [jobListings, setJobListings] = useState<JobPosting[]>([]);
   const [myApplications, setMyApplications] = useState<JobApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Search/Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrefecture, setSelectedPrefecture] = useState('');
-  
+
   // Application Modal State
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [applicationCoverLetter, setApplicationCoverLetter] = useState('');
   const [isApplying, setIsApplying] = useState(false);
-  
+
   // Messaging States
   const [messageThreads, setMessageThreads] = useState<APIMessageThread[]>([]);
   const [selectedThread, setSelectedThread] = useState<APIMessageThread | null>(null);
@@ -217,6 +217,13 @@ export default function PharmacistDashboard() {
   useEffect(() => {
     if (selectedThread) {
       fetchMessages(selectedThread.id);
+      // 構造化メッセージも自動取得
+      if (selectedThread.application?.id) {
+        fetchStructuredMessages(selectedThread.application.id);
+      } else {
+        setStructuredMessages([]);
+        setCurrentApplicationForMessages(null);
+      }
     }
   }, [selectedThread]);
 
@@ -232,7 +239,7 @@ export default function PharmacistDashboard() {
   const fetchJobs = async () => {
     try {
       setIsLoading(true);
-      const response = await getJobs({ 
+      const response = await getJobs({
         searchQuery: searchQuery || undefined,
         prefecture: selectedPrefecture || undefined
       });
@@ -287,14 +294,14 @@ export default function PharmacistDashboard() {
 
   const handleSendMessage = async () => {
     if (!selectedThread || !newMessage.trim()) return;
-    
+
     setIsSendingMessage(true);
     try {
       await sendMessage({
         threadId: selectedThread.id,
         content: newMessage.trim()
       });
-      
+
       setNewMessage('');
       // Refresh messages
       fetchMessages(selectedThread.id);
@@ -313,19 +320,19 @@ export default function PharmacistDashboard() {
 
   const handleApply = async () => {
     if (!selectedJob) return;
-    
+
     setIsApplying(true);
     try {
       await applyToJob({
         jobPostingId: selectedJob.id,
         coverLetter: applicationCoverLetter || undefined
       });
-      
+
       alert('応募が完了しました！');
       setShowApplicationModal(false);
       setApplicationCoverLetter('');
       setSelectedJob(null);
-      
+
       // Refresh applications list
       fetchMyApplications();
       fetchJobs();
@@ -374,7 +381,7 @@ export default function PharmacistDashboard() {
   // 日付を選択
   const handleSelectDate = async (messageId: number, selectedDate: string) => {
     if (!currentApplicationForMessages) return;
-    
+
     try {
       await selectDate({
         messageId,
@@ -392,7 +399,7 @@ export default function PharmacistDashboard() {
   // オファーに回答
   const handleRespondToOffer = async (messageId: number, accepted: boolean) => {
     if (!currentApplicationForMessages) return;
-    
+
     try {
       await respondToOffer({
         messageId,
@@ -467,7 +474,7 @@ export default function PharmacistDashboard() {
           useWebWorker: true,
           fileType: file.type
         };
-        
+
         fileToUpload = await imageCompression(file, options);
         console.log('Original size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
         console.log('Compressed size:', (fileToUpload.size / 1024 / 1024).toFixed(2), 'MB');
@@ -476,7 +483,7 @@ export default function PharmacistDashboard() {
       // アップロード
       await uploadLicense(fileToUpload, type);
       alert('証明書をアップロードしました！');
-      
+
       // 証明書情報を再取得
       fetchLicenseInfo();
 
@@ -508,19 +515,19 @@ export default function PharmacistDashboard() {
 
   const handleAcceptOffer = async (contractId: string) => {
     if (!confirm('この採用オファーを承諾しますか？承諾すると労働条件通知書が発行されます。')) return;
-    
+
     try {
       const response = await acceptJobOffer(contractId);
       alert('🎉 採用オファーを承諾しました！\n\n労働条件通知書が発行されました。勤務中薬局の画面で確認できます。');
       setShowOfferModal(false);
       setPendingOffer(null);
-      
+
       // 契約データを再取得
       await fetchContracts();
-      
+
       // 勤務中薬局画面に遷移
       setActiveMenu('勤務中薬局');
-      
+
       // Show work notice
       if (response.workNotice) {
         console.log('Work Notice:', response.workNotice);
@@ -534,9 +541,9 @@ export default function PharmacistDashboard() {
   const handleRejectOffer = async (contractId: string) => {
     const reason = prompt('辞退理由を入力してください（任意）:');
     if (reason === null) return; // User cancelled
-    
+
     if (!confirm('本当にこの採用オファーを辞退しますか？辞退すると薬局とのメッセージも非表示になります。')) return;
-    
+
     try {
       await rejectJobOffer(contractId, reason || undefined);
       alert('採用オファーを辞退しました');
@@ -568,7 +575,7 @@ export default function PharmacistDashboard() {
       name: contract.pharmacy?.pharmacyName || '薬局名未設定',
       startDate: contract.contractStartDate ? new Date(contract.contractStartDate).toISOString().split('T')[0] : '未定',
       workDays: contract.workDays || [],
-      timeSlot: contract.workHoursStart && contract.workHoursEnd 
+      timeSlot: contract.workHoursStart && contract.workHoursEnd
         ? `${contract.workHoursStart} - ${contract.workHoursEnd}`
         : '未定',
       hourlyRate: contract.hourlyRate || 0,
@@ -584,8 +591,8 @@ export default function PharmacistDashboard() {
             <div className="flex flex-col gap-4">
               <h2 className="text-2xl font-bold text-gray-800">薬局募集への応募</h2>
               <div className="flex flex-col sm:flex-row gap-4">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -605,7 +612,7 @@ export default function PharmacistDashboard() {
                   <option value="福岡県">福岡県</option>
                   {/* Add more prefectures as needed */}
                 </select>
-                <button 
+                <button
                   onClick={handleSearch}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg whitespace-nowrap"
                 >
@@ -635,19 +642,19 @@ export default function PharmacistDashboard() {
               ) : (
                 jobListings.map((job) => {
                   const isApplied = isJobApplied(job.id);
-                  const hourlyRate = job.minHourlyRate && job.maxHourlyRate 
+                  const hourlyRate = job.minHourlyRate && job.maxHourlyRate
                     ? `¥${job.minHourlyRate.toLocaleString()} - ¥${job.maxHourlyRate.toLocaleString()}`
-                    : job.minHourlyRate 
-                    ? `¥${job.minHourlyRate.toLocaleString()}`
-                    : '応相談';
-                  
+                    : job.minHourlyRate
+                      ? `¥${job.minHourlyRate.toLocaleString()}`
+                      : '応相談';
+
                   const employmentTypeMap: Record<string, string> = {
                     'full_time': '正社員',
                     'part_time': 'パート',
                     'temporary': '短期',
                     'contract': '契約社員'
                   };
-                  
+
                   const location = job.pharmacy?.city && job.pharmacy?.prefecture
                     ? `${job.pharmacy.prefecture}${job.pharmacy.city}`
                     : job.pharmacy?.prefecture || job.workLocation || '場所未定';
@@ -665,7 +672,7 @@ export default function PharmacistDashboard() {
                               <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">応募済み</span>
                             )}
                           </div>
-                          
+
                           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
                             <div className="flex items-center space-x-1">
                               <MapPin className="w-4 h-4" />
@@ -684,15 +691,15 @@ export default function PharmacistDashboard() {
                               </span>
                             )}
                           </div>
-                          
+
                           <p className="text-gray-700 mb-2">{job.description || '詳細な説明はありません'}</p>
                           <p className="text-sm text-gray-500">
                             応募条件: {job.requirements || '特に指定なし'}
                           </p>
                         </div>
-                        
+
                         <div className="flex flex-row lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                          <button 
+                          <button
                             onClick={() => setSelectedJob(job)}
                             className="text-gray-600 hover:text-gray-800 p-2"
                             title="詳細を見る"
@@ -703,7 +710,7 @@ export default function PharmacistDashboard() {
                             <Heart className="w-5 h-5" />
                           </button>
                           {!isApplied && job.status === 'active' ? (
-                            <button 
+                            <button
                               onClick={() => {
                                 setSelectedJob(job);
                                 setShowApplicationModal(true);
@@ -736,7 +743,7 @@ export default function PharmacistDashboard() {
                 <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">応募確認</h3>
-                    <button 
+                    <button
                       onClick={() => {
                         setShowApplicationModal(false);
                         setApplicationCoverLetter('');
@@ -746,7 +753,7 @@ export default function PharmacistDashboard() {
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h4 className="font-medium text-gray-800 mb-2">応募先</h4>
                     <div className="bg-gray-50 p-4 rounded-lg">
@@ -776,17 +783,17 @@ export default function PharmacistDashboard() {
                     <div className="bg-gray-50 p-4 rounded-lg h-40 overflow-y-auto text-sm text-gray-700">
                       <h5 className="font-medium mb-2">第1条（利用について）</h5>
                       <p className="mb-3">本サービスを利用する際は、以下の規約に同意していただく必要があります。</p>
-                      
+
                       <h5 className="font-medium mb-2">第2条（応募について）</h5>
                       <p className="mb-3">応募後は薬局からの連絡をお待ちください。虚偽の情報での応募は禁止いたします。</p>
-                      
+
                       <h5 className="font-medium mb-2">第3条（個人情報について）</h5>
                       <p className="mb-3">応募時に入力した情報は、マッチングのために薬局に開示されます。</p>
                     </div>
                   </div>
 
                   <div className="flex justify-end space-x-3">
-                    <button 
+                    <button
                       onClick={() => {
                         setShowApplicationModal(false);
                         setApplicationCoverLetter('');
@@ -796,14 +803,13 @@ export default function PharmacistDashboard() {
                     >
                       キャンセル
                     </button>
-                    <button 
+                    <button
                       onClick={handleApply}
                       disabled={isApplying}
-                      className={`px-6 py-2 rounded-lg text-white ${
-                        isApplying
+                      className={`px-6 py-2 rounded-lg text-white ${isApplying
                           ? 'bg-gray-400 cursor-not-allowed'
                           : 'bg-blue-500 hover:bg-blue-600'
-                      }`}
+                        }`}
                     >
                       {isApplying ? (
                         <>
@@ -829,7 +835,7 @@ export default function PharmacistDashboard() {
         const acceptedThreads = messageThreads.filter(
           thread => thread.application?.status === 'accepted'
         );
-        
+
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -859,14 +865,13 @@ export default function PharmacistDashboard() {
                     {acceptedThreads.map((thread) => {
                       const lastMsg = thread.messages?.[0];
                       const threadUnread = thread._count?.messages || 0;
-                      
+
                       return (
-                        <div 
-                          key={thread.id} 
+                        <div
+                          key={thread.id}
                           onClick={() => setSelectedThread(thread)}
-                          className={`p-4 hover:bg-gray-50 cursor-pointer ${
-                            selectedThread?.id === thread.id ? 'bg-blue-50' : ''
-                          }`}
+                          className={`p-4 hover:bg-gray-50 cursor-pointer ${selectedThread?.id === thread.id ? 'bg-blue-50' : ''
+                            }`}
                         >
                           <div className="flex justify-between items-start mb-2">
                             <h4 className="font-medium text-gray-800">
@@ -913,7 +918,7 @@ export default function PharmacistDashboard() {
                         </button>
                       )}
                     </div>
-                    
+
                     {/* 構造化メッセージ表示 */}
                     {currentApplicationForMessages === selectedThread.application?.id && structuredMessages.length > 0 && (
                       <div className="p-4 bg-blue-50 border-b space-y-3">
@@ -934,13 +939,12 @@ export default function PharmacistDashboard() {
                                       key={idx}
                                       onClick={() => handleSelectDate(msg.id, date)}
                                       disabled={!!msg.selectedDate}
-                                      className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                        msg.selectedDate === date
+                                      className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${msg.selectedDate === date
                                           ? 'bg-green-500 text-white'
                                           : msg.selectedDate
-                                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                          : 'bg-blue-500 hover:bg-blue-600 text-white'
-                                      }`}
+                                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                            : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                        }`}
                                     >
                                       {msg.selectedDate === date && '✓ '}{new Date(date).toLocaleDateString('ja-JP', {
                                         year: 'numeric',
@@ -958,7 +962,7 @@ export default function PharmacistDashboard() {
                                 )}
                               </div>
                             )}
-                            
+
                             {msg.messageType === 'date_selection' && (
                               <div>
                                 <p className="text-sm font-medium text-gray-800">
@@ -974,7 +978,7 @@ export default function PharmacistDashboard() {
                                 </p>
                               </div>
                             )}
-                            
+
                             {msg.messageType === 'formal_offer' && (
                               <div>
                                 <p className="text-sm font-bold text-gray-800 mb-3">
@@ -992,15 +996,22 @@ export default function PharmacistDashboard() {
                                     <span className="font-medium">{msg.workDays}日</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-600">報酬総額:</span>
-                                    <span className="font-medium">¥{msg.totalCompensation?.toLocaleString()}</span>
+                                    <span className="text-gray-600">日給:</span>
+                                    <span className="font-medium">¥{msg.dailyRate?.toLocaleString() || '25,000'}</span>
                                   </div>
+                                  <div className="flex justify-between border-t border-gray-200 pt-2">
+                                    <span className="text-gray-800 font-medium">報酬総額:</span>
+                                    <span className="font-bold text-blue-600">¥{msg.totalCompensation?.toLocaleString()}</span>
+                                  </div>
+                                  <p className="text-xs text-gray-500">
+                                    （日給 ¥{msg.dailyRate?.toLocaleString() || '25,000'} × {msg.workDays}日）
+                                  </p>
                                   <div className="flex justify-between">
                                     <span className="text-gray-600">勤務時間:</span>
                                     <span className="font-medium">{msg.workHours}</span>
                                   </div>
                                 </div>
-                                
+
                                 {!msg.pharmacistResponse ? (
                                   <div className="flex space-x-2">
                                     <button
@@ -1017,11 +1028,10 @@ export default function PharmacistDashboard() {
                                     </button>
                                   </div>
                                 ) : (
-                                  <div className={`p-2 rounded-lg text-sm font-medium ${
-                                    msg.pharmacistResponse === 'accepted'
+                                  <div className={`p-2 rounded-lg text-sm font-medium ${msg.pharmacistResponse === 'accepted'
                                       ? 'bg-green-100 text-green-800'
                                       : 'bg-red-100 text-red-800'
-                                  }`}>
+                                    }`}>
                                     {msg.pharmacistResponse === 'accepted'
                                       ? '✓ オファーを承諾しました'
                                       : '✗ オファーを辞退しました'
@@ -1030,7 +1040,7 @@ export default function PharmacistDashboard() {
                                 )}
                               </div>
                             )}
-                            
+
                             <p className="text-xs text-gray-400 mt-2">
                               {new Date(msg.createdAt).toLocaleString('ja-JP')}
                             </p>
@@ -1038,7 +1048,7 @@ export default function PharmacistDashboard() {
                         ))}
                       </div>
                     )}
-                    
+
                     <div className="flex-1 p-4 overflow-y-auto space-y-4">
                       {messages.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
@@ -1047,21 +1057,19 @@ export default function PharmacistDashboard() {
                       ) : (
                         messages.map((message) => {
                           const isMyMessage = message.sender.userType === 'pharmacist';
-                          
+
                           return (
-                            <div 
-                              key={message.id} 
+                            <div
+                              key={message.id}
                               className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
                             >
-                              <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                                isMyMessage 
-                                  ? 'bg-blue-500 text-white' 
+                              <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isMyMessage
+                                  ? 'bg-blue-500 text-white'
                                   : 'bg-gray-200 text-gray-800'
-                              }`}>
-                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                                <p className={`text-xs mt-1 ${
-                                  isMyMessage ? 'text-blue-100' : 'text-gray-500'
                                 }`}>
+                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                <p className={`text-xs mt-1 ${isMyMessage ? 'text-blue-100' : 'text-gray-500'
+                                  }`}>
                                   {new Date(message.createdAt).toLocaleString('ja-JP')}
                                 </p>
                               </div>
@@ -1070,11 +1078,11 @@ export default function PharmacistDashboard() {
                         })
                       )}
                     </div>
-                    
+
                     <div className="p-4 border-t">
                       <div className="flex space-x-2">
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && !isSendingMessage && handleSendMessage()}
@@ -1082,14 +1090,13 @@ export default function PharmacistDashboard() {
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           disabled={isSendingMessage}
                         />
-                        <button 
+                        <button
                           onClick={handleSendMessage}
                           disabled={isSendingMessage || !newMessage.trim()}
-                          className={`px-4 py-2 rounded-lg text-white ${
-                            isSendingMessage || !newMessage.trim()
+                          className={`px-4 py-2 rounded-lg text-white ${isSendingMessage || !newMessage.trim()
                               ? 'bg-gray-400 cursor-not-allowed'
                               : 'bg-blue-500 hover:bg-blue-600'
-                          }`}
+                            }`}
                         >
                           {isSendingMessage ? '送信中...' : '送信'}
                         </button>
@@ -1132,7 +1139,7 @@ export default function PharmacistDashboard() {
                           {contract.pharmacy?.prefecture} {contract.pharmacy?.city}
                         </p>
                         <p className="text-gray-600 mt-1">
-                          勤務開始日: {contract.contractStartDate 
+                          勤務開始日: {contract.contractStartDate
                             ? new Date(contract.contractStartDate).toLocaleDateString('ja-JP')
                             : '未定'}
                         </p>
@@ -1141,24 +1148,24 @@ export default function PharmacistDashboard() {
                         勤務中
                       </span>
                     </div>
-                    
+
                     <div className="grid lg:grid-cols-2 gap-6 mb-4">
                       <div>
                         <h4 className="font-medium mb-2">勤務条件</h4>
                         <div className="space-y-1 text-sm text-gray-600">
                           <p>勤務曜日: {contract.workDays?.join('、') || '未定'}</p>
-                          <p>勤務時間: {contract.workHoursStart && contract.workHoursEnd 
+                          <p>勤務時間: {contract.workHoursStart && contract.workHoursEnd
                             ? `${contract.workHoursStart} - ${contract.workHoursEnd}`
                             : '未定'}</p>
-                          <p>時給: {contract.hourlyRate 
+                          <p>時給: {contract.hourlyRate
                             ? `¥${contract.hourlyRate.toLocaleString()}`
                             : '未定'}</p>
-                          <p>休憩時間: {contract.breakTimeMinutes 
+                          <p>休憩時間: {contract.breakTimeMinutes
                             ? `${contract.breakTimeMinutes}分`
                             : '未定'}</p>
                         </div>
                       </div>
-                      
+
                       <div>
                         <h4 className="font-medium mb-2">契約情報</h4>
                         <div className="bg-gray-50 p-4 rounded-lg">
@@ -1185,9 +1192,9 @@ export default function PharmacistDashboard() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <button 
+                      <button
                         onClick={() => {
                           // メッセージスレッドを検索して選択
                           const thread = messageThreads.find(
@@ -1205,7 +1212,7 @@ export default function PharmacistDashboard() {
                         <MessageSquare className="w-4 h-4" />
                         <span>薬局とメッセージ</span>
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           setSelectedContract(contract);
                           setShowContractDetail(true);
@@ -1224,7 +1231,7 @@ export default function PharmacistDashboard() {
                 <Building className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-800 mb-2">勤務中の薬局がありません</h3>
                 <p className="text-gray-600 mb-4">応募後、「働き始める」を押すとこちらに表示されます</p>
-                <button 
+                <button
                   onClick={() => setActiveMenu('募集検索')}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg"
                 >
@@ -1266,7 +1273,7 @@ export default function PharmacistDashboard() {
                       {selectedContract.status === 'active' && selectedContract.terms && (
                         <div>
                           <h4 className="font-medium text-gray-700 mb-2">📋 労働条件通知書</h4>
-                          
+
                           {/* PDF版のダウンロード */}
                           {selectedContract.workNoticeUrl && (
                             <div className="mb-4">
@@ -1297,7 +1304,7 @@ export default function PharmacistDashboard() {
                               </div>
                             </div>
                           )}
-                          
+
                           {/* テキスト版 */}
                           <div className="mb-2">
                             <p className="text-sm font-medium text-gray-700 mb-2">テキスト版（参考）</p>
@@ -1305,7 +1312,7 @@ export default function PharmacistDashboard() {
                               {selectedContract.terms}
                             </pre>
                           </div>
-                          
+
                           {/* テキスト版のダウンロードボタン */}
                           <button
                             onClick={() => {
@@ -1323,7 +1330,7 @@ export default function PharmacistDashboard() {
                           >
                             📄 テキストファイルとしてダウンロード
                           </button>
-                          
+
                           <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
                             <p className="text-xs text-green-800">
                               💡 この労働条件通知書は契約成立時に自動生成されました。大切に保管してください。
@@ -1398,28 +1405,27 @@ export default function PharmacistDashboard() {
               <div className="p-6 space-y-6">
                 {/* 本人確認ステータス */}
                 {licenseInfo && (
-                  <div className={`rounded-lg p-4 ${
-                    licenseInfo.verificationStatus === 'approved' 
+                  <div className={`rounded-lg p-4 ${licenseInfo.verificationStatus === 'approved'
                       ? 'bg-green-50 border border-green-200'
                       : licenseInfo.verificationStatus === 'rejected'
-                      ? 'bg-red-50 border border-red-200'
-                      : 'bg-yellow-50 border border-yellow-200'
-                  }`}>
+                        ? 'bg-red-50 border border-red-200'
+                        : 'bg-yellow-50 border border-yellow-200'
+                    }`}>
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold mb-1">
-                          {licenseInfo.verificationStatus === 'approved' 
+                          {licenseInfo.verificationStatus === 'approved'
                             ? '✅ 本人確認済み'
                             : licenseInfo.verificationStatus === 'rejected'
-                            ? '❌ 本人確認不可'
-                            : '⏳ 本人確認待ち'}
+                              ? '❌ 本人確認不可'
+                              : '⏳ 本人確認待ち'}
                         </p>
                         <p className="text-sm text-gray-700">
-                          {licenseInfo.verificationStatus === 'approved' 
+                          {licenseInfo.verificationStatus === 'approved'
                             ? '運営による本人確認が完了しています'
                             : licenseInfo.verificationStatus === 'rejected'
-                            ? '証明書に問題があります。運営にお問い合わせください'
-                            : '証明書をアップロードすると、運営が確認します'}
+                              ? '証明書に問題があります。運営にお問い合わせください'
+                              : '証明書をアップロードすると、運営が確認します'}
                         </p>
                         {licenseInfo.verifiedAt && (
                           <p className="text-xs text-gray-500 mt-1">
@@ -1452,7 +1458,7 @@ export default function PharmacistDashboard() {
                             <div>
                               <p className="font-medium text-gray-900">薬剤師免許証</p>
                               <p className="text-sm text-gray-600">
-                                アップロード日: {licenseInfo.license.uploadedAt 
+                                アップロード日: {licenseInfo.license.uploadedAt
                                   ? new Date(licenseInfo.license.uploadedAt).toLocaleDateString('ja-JP')
                                   : '不明'}
                               </p>
@@ -1539,7 +1545,7 @@ export default function PharmacistDashboard() {
                             <div>
                               <p className="font-medium text-gray-900">保険薬剤師登録票</p>
                               <p className="text-sm text-gray-600">
-                                アップロード日: {licenseInfo.registration.uploadedAt 
+                                アップロード日: {licenseInfo.registration.uploadedAt
                                   ? new Date(licenseInfo.registration.uploadedAt).toLocaleDateString('ja-JP')
                                   : '不明'}
                               </p>
@@ -1854,7 +1860,7 @@ export default function PharmacistDashboard() {
                             />
                           ) : (
                             <p className="text-gray-900">
-                              {profile.licenseIssuedDate 
+                              {profile.licenseIssuedDate
                                 ? new Date(profile.licenseIssuedDate).toLocaleDateString('ja-JP')
                                 : '未登録'}
                             </p>
@@ -1946,8 +1952,8 @@ export default function PharmacistDashboard() {
                             />
                           ) : (
                             <p className="text-gray-900">
-                              {profile.workExperienceMonths 
-                                ? `${Math.floor(profile.workExperienceMonths / 12)}年${profile.workExperienceMonths % 12}ヶ月` 
+                              {profile.workExperienceMonths
+                                ? `${Math.floor(profile.workExperienceMonths / 12)}年${profile.workExperienceMonths % 12}ヶ月`
                                 : '未登録'}
                             </p>
                           )}
@@ -1969,14 +1975,14 @@ export default function PharmacistDashboard() {
                                   onChange={(e) => {
                                     const current = profileForm.certifiedPharmacistQualifications || [];
                                     if (e.target.checked) {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        certifiedPharmacistQualifications: [...current, qual] 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        certifiedPharmacistQualifications: [...current, qual]
                                       });
                                     } else {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        certifiedPharmacistQualifications: current.filter(q => q !== qual) 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        certifiedPharmacistQualifications: current.filter(q => q !== qual)
                                       });
                                     }
                                   }}
@@ -2024,7 +2030,7 @@ export default function PharmacistDashboard() {
                     {/* 経歴・経験 */}
                     <div>
                       <h4 className="text-md font-semibold text-gray-800 mb-4">経歴・経験</h4>
-                      
+
                       {/* 勤務経験のある業態 */}
                       <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2040,14 +2046,14 @@ export default function PharmacistDashboard() {
                                   onChange={(e) => {
                                     const current = profileForm.workExperienceTypes || [];
                                     if (e.target.checked) {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        workExperienceTypes: [...current, type] 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        workExperienceTypes: [...current, type]
                                       });
                                     } else {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        workExperienceTypes: current.filter(t => t !== type) 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        workExperienceTypes: current.filter(t => t !== type)
                                       });
                                     }
                                   }}
@@ -2081,14 +2087,14 @@ export default function PharmacistDashboard() {
                                   onChange={(e) => {
                                     const current = profileForm.mainJobExperiences || [];
                                     if (e.target.checked) {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        mainJobExperiences: [...current, exp] 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        mainJobExperiences: [...current, exp]
                                       });
                                     } else {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        mainJobExperiences: current.filter(j => j !== exp) 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        mainJobExperiences: current.filter(j => j !== exp)
                                       });
                                     }
                                   }}
@@ -2122,14 +2128,14 @@ export default function PharmacistDashboard() {
                                   onChange={(e) => {
                                     const current = profileForm.specialtyFields || [];
                                     if (e.target.checked) {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        specialtyFields: [...current, field] 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        specialtyFields: [...current, field]
                                       });
                                     } else {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        specialtyFields: current.filter(f => f !== field) 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        specialtyFields: current.filter(f => f !== field)
                                       });
                                     }
                                   }}
@@ -2163,14 +2169,14 @@ export default function PharmacistDashboard() {
                                   onChange={(e) => {
                                     const current = profileForm.pharmacySystemsExperience || [];
                                     if (e.target.checked) {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        pharmacySystemsExperience: [...current, system] 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        pharmacySystemsExperience: [...current, system]
                                       });
                                     } else {
-                                      setProfileForm({ 
-                                        ...profileForm, 
-                                        pharmacySystemsExperience: current.filter(s => s !== system) 
+                                      setProfileForm({
+                                        ...profileForm,
+                                        pharmacySystemsExperience: current.filter(s => s !== system)
                                       });
                                     }
                                   }}
@@ -2271,7 +2277,7 @@ export default function PharmacistDashboard() {
     <div className="flex h-screen bg-gray-100">
       {/* Mobile menu overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
@@ -2292,14 +2298,14 @@ export default function PharmacistDashboard() {
               </p>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(false)}
             className="lg:hidden text-gray-500 hover:text-gray-700"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
-        
+
         <nav className="mt-6 pb-20 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -2310,11 +2316,10 @@ export default function PharmacistDashboard() {
                   setActiveMenu(item.id);
                   setIsSidebarOpen(false);
                 }}
-                className={`w-full flex items-center px-6 py-3 text-left hover:bg-blue-50 transition-colors ${
-                  activeMenu === item.id 
-                    ? 'bg-blue-50 border-r-4 border-blue-500 text-blue-700' 
+                className={`w-full flex items-center px-6 py-3 text-left hover:bg-blue-50 transition-colors ${activeMenu === item.id
+                    ? 'bg-blue-50 border-r-4 border-blue-500 text-blue-700'
                     : 'text-gray-700'
-                }`}
+                  }`}
               >
                 <Icon className={`w-5 h-5 mr-3 ${activeMenu === item.id ? 'text-blue-500' : 'text-gray-400'}`} />
                 <span className="text-sm font-medium">{item.label}</span>
@@ -2322,13 +2327,13 @@ export default function PharmacistDashboard() {
             );
           })}
         </nav>
-        
+
         <div className="absolute bottom-0 w-full p-6 border-t bg-white">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm text-gray-600">通知</span>
             <NotificationBell />
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 cursor-pointer w-full"
           >
@@ -2352,7 +2357,7 @@ export default function PharmacistDashboard() {
             <NotificationBell />
           </div>
         </div>
-        
+
         <div className="p-4 lg:p-8">
           {renderContent()}
         </div>
@@ -2365,11 +2370,11 @@ export default function PharmacistDashboard() {
             <div className="flex items-center justify-center mb-6">
               <Bell className="w-16 h-16 text-green-500 animate-bounce" />
             </div>
-            
+
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
               🎉 採用オファーが届きました！
             </h2>
-            
+
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
               <h3 className="font-semibold text-lg text-gray-800 mb-3">
                 {pendingOffer.pharmacy?.pharmacyName}

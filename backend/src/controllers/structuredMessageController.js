@@ -136,13 +136,27 @@ const selectDate = async (req, res) => {
 const sendFormalOffer = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { 
-      applicationId, 
-      initialWorkDate, 
-      workDays, 
-      workHours, 
-      paymentDeadline 
+    const {
+      applicationId,
+      initialWorkDate,
+      workDays,
+      dailyRate,
+      workHours,
+      paymentDeadline
     } = req.body;
+
+    // 入力値のバリデーション
+    if (!dailyRate || dailyRate < 20000) {
+      return res.status(400).json({
+        error: '日給は20,000円以上に設定してください'
+      });
+    }
+
+    if (!workDays || workDays < 15 || workDays > 90) {
+      return res.status(400).json({
+        error: '勤務日数は15日〜90日の範囲で設定してください'
+      });
+    }
 
     // 薬局の権限確認
     const application = await prisma.job_applications.findUnique({
@@ -170,10 +184,9 @@ const sendFormalOffer = async (req, res) => {
     }
 
     // 報酬総額と手数料を自動計算
-    const DAILY_RATE = 25000; // 日給固定：25,000円
     const PLATFORM_FEE_RATE = 0.40; // プラットフォーム手数料：40%
-    
-    const totalCompensation = DAILY_RATE * workDays; // 報酬総額
+
+    const totalCompensation = dailyRate * workDays; // 報酬総額
     const platformFeeAmount = Math.floor(totalCompensation * PLATFORM_FEE_RATE); // 手数料（40%）
 
     // 正式オファーの構造化メッセージを作成
@@ -184,7 +197,7 @@ const sendFormalOffer = async (req, res) => {
         data: {
           initialWorkDate,
           workDays,
-          dailyRate: DAILY_RATE,
+          dailyRate: dailyRate,
           totalCompensation,
           workHours,
           platformFee: platformFeeAmount,
@@ -207,7 +220,8 @@ const sendFormalOffer = async (req, res) => {
         initial_work_date: new Date(initialWorkDate),
         start_date: new Date(initialWorkDate),
         work_days: workDays,
-        daily_rate: DAILY_RATE,
+        work_days_count: workDays,
+        daily_rate: dailyRate,
         total_compensation: totalCompensation,
         status: 'pending',
         platform_fee_status: 'pending',
@@ -235,6 +249,7 @@ const sendFormalOffer = async (req, res) => {
         pharmacyName: application.job_postings.pharmacy_profiles.pharmacy_name,
         pharmacistName: `${application.pharmacist_profiles.last_name} ${application.pharmacist_profiles.first_name}`,
         workDays,
+        dailyRate,
         totalCompensation,
         platformFee: platformFeeAmount,
         paymentDeadline
@@ -338,7 +353,7 @@ ${new Date(paymentDeadline).toLocaleDateString('ja-JP')}
       structuredMessage,
       contract,
       calculatedValues: {
-        dailyRate: DAILY_RATE,
+        dailyRate: dailyRate,
         workDays,
         totalCompensation,
         platformFee: platformFeeAmount,
@@ -410,8 +425,8 @@ const respondToOffer = async (req, res) => {
         message_type: 'offer_response',
         data: {
           response: response,
-          message: response === 'accept' 
-            ? 'オファーを承諾しました。よろしくお願いいたします。' 
+          message: response === 'accept'
+            ? 'オファーを承諾しました。よろしくお願いいたします。'
             : 'オファーを辞退させていただきます。'
         },
         sent_by: 'pharmacist',
@@ -490,9 +505,30 @@ const getStructuredMessages = async (req, res) => {
       }
     });
 
-    res.json({
-      messages
+    // データをフロントエンド用に整形
+    const formattedMessages = messages.map(msg => {
+      const data = typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data;
+      return {
+        id: msg.id,
+        applicationId: msg.application_id,
+        messageType: msg.message_type,
+        proposedDates: data.proposedDates || null,
+        selectedDate: data.selectedDate || msg.selected_date || null,
+        initialWorkDate: data.initialWorkDate || null,
+        workDays: data.workDays || null,
+        dailyRate: data.dailyRate || null,
+        totalCompensation: data.totalCompensation || null,
+        workHours: data.workHours || null,
+        platformFee: data.platformFee || null,
+        paymentDeadline: data.paymentDeadline || null,
+        pharmacistResponse: data.response === 'accept' ? 'accepted' : data.response === 'decline' ? 'rejected' : null,
+        sentBy: msg.sent_by,
+        createdAt: msg.sent_at.toISOString(),
+        updatedAt: msg.updated_at ? msg.updated_at.toISOString() : msg.sent_at.toISOString()
+      };
     });
+
+    res.json(formattedMessages);
 
   } catch (error) {
     console.error('Get structured messages error:', error);

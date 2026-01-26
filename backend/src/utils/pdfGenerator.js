@@ -72,7 +72,7 @@ const generateInvoicePDF = (invoiceData) => {
 
       doc.fontSize(9)
          .fillColor('gray')
-         .text(`（日給 ¥25,000 × ${invoiceData.workDays}日）`, col1X + 20, rowY);
+         .text(`（日給 ¥${invoiceData.dailyRate.toLocaleString()} × ${invoiceData.workDays}日）`, col1X + 20, rowY);
       rowY += 25;
 
       doc.fontSize(10)
@@ -233,7 +233,9 @@ const generateWorkNoticePDF = (noticeData) => {
          .moveDown(0.5);
 
       doc.text('6. 賃金')
-         .text(`   日給: ¥25,000`)
+         .text(`   日給: ¥${noticeData.dailyRate ? noticeData.dailyRate.toLocaleString() : '25,000'}`)
+         .text(`   報酬総額: ¥${noticeData.totalCompensation ? noticeData.totalCompensation.toLocaleString() : (noticeData.dailyRate * noticeData.workDays).toLocaleString()}`)
+         .text(`   （日給 ¥${noticeData.dailyRate ? noticeData.dailyRate.toLocaleString() : '25,000'} × ${noticeData.workDays}日）`)
          .text(`   賃金締切日・支払日: 体験期間終了後（要協議）`)
          .text(`   賃金支払方法: 銀行振込等（要協議）`)
          .moveDown(1);

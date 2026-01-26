@@ -35,14 +35,31 @@ const createJob = async (req, res) => {
 
     // 必須フィールドの検証
     if (!title || !employmentType) {
-      return res.status(400).json({ 
-        error: 'タイトルと雇用形態は必須です' 
+      return res.status(400).json({
+        error: 'タイトルと雇用形態は必須です'
       });
+    }
+
+    // 日給のバリデーション
+    if (dailyRate && Number(dailyRate) < 20000) {
+      return res.status(400).json({
+        error: '日給は20,000円以上に設定してください'
+      });
+    }
+
+    // 勤務日数のバリデーション
+    if (contractDurationDays) {
+      const days = parseInt(contractDurationDays);
+      if (days < 15 || days > 90) {
+        return res.status(400).json({
+          error: '勤務日数は15日から90日の範囲で設定してください'
+        });
+      }
     }
 
     // 薬局プロフィールを取得（リクエストで指定されていればそれを使用、なければユーザーの最初の薬局を使用）
     let pharmacyProfile;
-    
+
     if (requestedPharmacyId && requestedPharmacyId !== 'temp-pharmacy-id') {
       // 指定された薬局プロフィールが自分のものか確認
       pharmacyProfile = await prisma.pharmacy_profiles.findFirst({
@@ -70,7 +87,7 @@ const createJob = async (req, res) => {
           city: '市区町村未設定'
         }
       });
-      
+
       console.log('Auto-created pharmacy profile for user:', userId);
     }
 
@@ -388,6 +405,23 @@ const updateJob = async (req, res) => {
       return res.status(403).json({ error: 'この求人を更新する権限がありません' });
     }
 
+    // 日給のバリデーション
+    if (updateData.dailyRate !== undefined && Number(updateData.dailyRate) < 20000) {
+      return res.status(400).json({
+        error: '日給は20,000円以上に設定してください'
+      });
+    }
+
+    // 勤務日数のバリデーション
+    if (updateData.contractDurationDays !== undefined) {
+      const days = parseInt(updateData.contractDurationDays);
+      if (days < 15 || days > 90) {
+        return res.status(400).json({
+          error: '勤務日数は15日から90日の範囲で設定してください'
+        });
+      }
+    }
+
     // 時給を時刻型に変換
     const parseTime = (timeStr) => {
       if (!timeStr) return undefined;
@@ -396,7 +430,7 @@ const updateJob = async (req, res) => {
 
     // 更新データを準備
     const data = {};
-    
+
     if (updateData.title !== undefined) data.title = updateData.title;
     if (updateData.description !== undefined) data.description = updateData.description;
     if (updateData.employmentType !== undefined) data.employment_type = updateData.employmentType;
@@ -419,6 +453,11 @@ const updateJob = async (req, res) => {
     }
     if (updateData.maxApplicants !== undefined) data.max_applicants = parseInt(updateData.maxApplicants);
     if (updateData.preferredSchedule !== undefined) data.preferred_schedule = updateData.preferredSchedule;
+    if (updateData.dailyRate !== undefined) data.daily_rate = parseInt(updateData.dailyRate);
+    if (updateData.contractDurationDays !== undefined) data.contract_duration_days = parseInt(updateData.contractDurationDays);
+    if (updateData.suggestedStartDate !== undefined) {
+      data.suggested_start_date = updateData.suggestedStartDate ? new Date(updateData.suggestedStartDate) : null;
+    }
 
     // 求人更新
     const updatedJob = await prisma.job_postings.update({
@@ -530,8 +569,8 @@ const deleteJob = async (req, res) => {
 
     // 応募がある場合は警告
     if (existingJob._count.applications > 0) {
-      return res.status(400).json({ 
-        error: 'この求人には応募者がいるため削除できません。ステータスを「終了」に変更してください。' 
+      return res.status(400).json({
+        error: 'この求人には応募者がいるため削除できません。ステータスを「終了」に変更してください。'
       });
     }
 

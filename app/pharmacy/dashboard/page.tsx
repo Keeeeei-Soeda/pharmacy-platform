@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Users, 
-  FileText, 
-  UserCheck, 
-  Clock, 
+import {
+  Users,
+  FileText,
+  UserCheck,
+  Clock,
   Calculator,
   Bell,
   Settings,
@@ -26,10 +26,10 @@ import {
   Home
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
-import { 
-  getMyJobs, 
-  createJob, 
-  updateJob, 
+import {
+  getMyJobs,
+  createJob,
+  updateJob,
   updateJobStatus,
   deleteJob,
   getApplicationsForPharmacy,
@@ -71,13 +71,13 @@ export default function PharmacyDashboard() {
   const [activeMenu, setActiveMenu] = useState<ActiveMenu>('ホーム');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
-  
+
   // API Data States
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([]);
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Job Posting Form States
   const [showJobModal, setShowJobModal] = useState(false);
   const [editingJob, setEditingJob] = useState<JobPosting | null>(null);
@@ -94,10 +94,10 @@ export default function PharmacyDashboard() {
     applicationDeadline: '', // 募集期限（デフォルト7日後）
     preferredSchedule: '', // 希望勤務曜日・時間帯（任意）
   });
-  
+
   // Application Detail State
   const [selectedApplication, setSelectedApplication] = useState<JobApplication | null>(null);
-  
+
   // Messaging States
   const [messageThreads, setMessageThreads] = useState<APIMessageThread[]>([]);
   const [selectedThread, setSelectedThread] = useState<APIMessageThread | null>(null);
@@ -226,14 +226,14 @@ export default function PharmacyDashboard() {
 
   const handleSendMessage = async () => {
     if (!selectedThread || !newMessage.trim()) return;
-    
+
     setIsSendingMessage(true);
     try {
       await sendMessage({
         threadId: selectedThread.id,
         content: newMessage.trim()
       });
-      
+
       setNewMessage('');
       // Refresh messages
       fetchMessages(selectedThread.id);
@@ -264,7 +264,7 @@ export default function PharmacyDashboard() {
         applicationDeadline: jobFormData.applicationDeadline || undefined,
         preferredSchedule: jobFormData.preferredSchedule || undefined,
       });
-      
+
       alert('求人を投稿しました！');
       setShowJobModal(false);
       resetJobForm();
@@ -279,7 +279,7 @@ export default function PharmacyDashboard() {
 
   const handleUpdateJob = async () => {
     if (!editingJob) return;
-    
+
     setIsSubmitting(true);
     try {
       await updateJob(editingJob.id, {
@@ -294,7 +294,7 @@ export default function PharmacyDashboard() {
         applicationDeadline: jobFormData.applicationDeadline || undefined,
         preferredSchedule: jobFormData.preferredSchedule || undefined,
       });
-      
+
       alert('求人を更新しました！');
       setShowJobModal(false);
       setEditingJob(null);
@@ -385,21 +385,21 @@ export default function PharmacyDashboard() {
 
   const handleSendJobOffer = async (applicationId: number) => {
     if (!confirm('この薬剤師に採用オファーを送信しますか？')) return;
-    
+
     try {
       console.log('Sending job offer for applicationId:', applicationId);
       const result = await sendJobOffer({ applicationId });
       console.log('Job offer sent successfully:', result);
-      
+
       alert('採用オファーを送信しました！薬剤師の承諾をお待ちください。');
-      
+
       // データを再取得
       await Promise.all([
         fetchContracts(),
         fetchApplications(),
         fetchMessageThreads()
       ]);
-      
+
       console.log('Data refreshed. Contracts:', contracts.length);
     } catch (err: unknown) {
       console.error('Failed to send job offer:', err);
@@ -418,7 +418,7 @@ export default function PharmacyDashboard() {
     // デフォルト値：募集期限は今日から7日後
     const defaultDeadline = new Date();
     defaultDeadline.setDate(defaultDeadline.getDate() + 7);
-    
+
     setJobFormData({
       title: '',
       description: '',
@@ -453,7 +453,7 @@ export default function PharmacyDashboard() {
         : '',
       contractDurationDays: extras.contractDurationDays?.toString() || '30',
       requirements: job.requirements || '',
-      applicationDeadline: job.applicationDeadline 
+      applicationDeadline: job.applicationDeadline
         ? new Date(job.applicationDeadline).toISOString().split('T')[0]
         : '',
       preferredSchedule: extras.preferredSchedule || '',
@@ -675,11 +675,10 @@ export default function PharmacyDashboard() {
                           </p>
                         </div>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                         app.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
+                          'bg-gray-100 text-gray-800'
+                        }`}>
                         {app.status === 'pending' ? '新規' : app.status === 'accepted' ? '承認済み' : app.status}
                       </span>
                     </div>
@@ -781,7 +780,7 @@ export default function PharmacyDashboard() {
           'rejected': '拒否',
           'withdrawn': '取り下げ'
         };
-        
+
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -793,7 +792,7 @@ export default function PharmacyDashboard() {
                 </span>
               </div>
             </div>
-            
+
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
@@ -826,74 +825,73 @@ export default function PharmacyDashboard() {
                         const fullName = application.pharmacist?.firstName && application.pharmacist?.lastName
                           ? `${application.pharmacist.lastName} ${application.pharmacist.firstName}`
                           : application.pharmacist?.lastName || '名前未設定';
-                        const displayName = isAccepted 
+                        const displayName = isAccepted
                           ? fullName
                           : `${application.pharmacist?.lastName?.charAt(0)}◯◯ ${application.pharmacist?.firstName?.charAt(0) || '◯'}◯◯`;
-                        
+
                         return (
-                        <tr key={application.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {displayName}
-                            {!isAccepted && (
-                              <span className="ml-2 text-xs text-gray-500">(承認後に開示)</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {application.pharmacist?.experienceYears ? `${application.pharmacist.experienceYears}年` : '未記入'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {application.pharmacist?.specialties?.slice(0, 2).join(', ') || '未記入'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(application.appliedAt).toLocaleDateString('ja-JP')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              application.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              application.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                              application.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                              'bg-blue-100 text-blue-800'
-                            }`}>
-                              {statusMap[application.status] || application.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex items-center space-x-2">
-                              <button 
-                                onClick={() => setSelectedApplication(application)}
-                                className="inline-flex items-center px-2 py-1 text-blue-600 hover:bg-blue-50 rounded text-sm"
-                                title="詳細を見る"
-                              >
-                                <Eye className="w-5 h-5" />
-                              </button>
-                              {application.status === 'pending' || application.status === 'under_review' ? (
-                                <>
-                                  <button 
-                                    onClick={() => handleAcceptApplication(application.id)}
-                                    className="inline-flex items-center px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors"
-                                  >
-                                    <CheckCircle className="w-5 h-5 mr-1" />
-                                    承認
-                                  </button>
-                                  <button 
-                                    onClick={() => {
-                                      const reason = prompt('拒否理由を入力してください（任意）:');
-                                      handleRejectApplication(application.id, reason || undefined);
-                                    }}
-                                    className="inline-flex items-center px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
-                                  >
-                                    <XCircle className="w-5 h-5 mr-1" />
-                                    拒否
-                                  </button>
-                                </>
-                              ) : (
-                                <span className="inline-flex px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
-                                  処理済み
-                                </span>
+                          <tr key={application.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {displayName}
+                              {!isAccepted && (
+                                <span className="ml-2 text-xs text-gray-500">(承認後に開示)</span>
                               )}
-                            </div>
-                          </td>
-                        </tr>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {application.pharmacist?.experienceYears ? `${application.pharmacist.experienceYears}年` : '未記入'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {application.pharmacist?.specialties?.slice(0, 2).join(', ') || '未記入'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {new Date(application.appliedAt).toLocaleDateString('ja-JP')}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${application.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                application.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                                  application.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                    'bg-blue-100 text-blue-800'
+                                }`}>
+                                {statusMap[application.status] || application.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => setSelectedApplication(application)}
+                                  className="inline-flex items-center px-2 py-1 text-blue-600 hover:bg-blue-50 rounded text-sm"
+                                  title="詳細を見る"
+                                >
+                                  <Eye className="w-5 h-5" />
+                                </button>
+                                {application.status === 'pending' || application.status === 'under_review' ? (
+                                  <>
+                                    <button
+                                      onClick={() => handleAcceptApplication(application.id)}
+                                      className="inline-flex items-center px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors"
+                                    >
+                                      <CheckCircle className="w-5 h-5 mr-1" />
+                                      承認
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const reason = prompt('拒否理由を入力してください（任意）:');
+                                        handleRejectApplication(application.id, reason || undefined);
+                                      }}
+                                      className="inline-flex items-center px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
+                                    >
+                                      <XCircle className="w-5 h-5 mr-1" />
+                                      拒否
+                                    </button>
+                                  </>
+                                ) : (
+                                  <span className="inline-flex px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+                                    処理済み
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
                         );
                       })}
                     </tbody>
@@ -901,21 +899,21 @@ export default function PharmacyDashboard() {
                 </div>
               </div>
             )}
-            
+
             {/* Application Detail Modal */}
             {selectedApplication && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                 <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">応募詳細</h3>
-                    <button 
+                    <button
                       onClick={() => setSelectedApplication(null)}
                       className="text-gray-400 hover:text-gray-600"
                     >
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  
+
                   <div className="space-y-4">
                     {/* 基本情報 */}
                     <div>
@@ -929,8 +927,8 @@ export default function PharmacyDashboard() {
                       </h4>
                       <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                         <p>
-                          <span className="font-medium">名前:</span> 
-                          {selectedApplication.status === 'accepted' 
+                          <span className="font-medium">名前:</span>
+                          {selectedApplication.status === 'accepted'
                             ? ` ${selectedApplication.pharmacist?.lastName || ''} ${selectedApplication.pharmacist?.firstName || ''}`
                             : ` ${selectedApplication.pharmacist?.lastName?.charAt(0) || '◯'}◯◯ ${selectedApplication.pharmacist?.firstName?.charAt(0) || '◯'}◯◯`
                           }
@@ -979,7 +977,7 @@ export default function PharmacyDashboard() {
                       <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                         {selectedApplication.pharmacist?.workExperienceMonths ? (
                           <p>
-                            <span className="font-medium">勤務歴:</span> 
+                            <span className="font-medium">勤務歴:</span>
                             {` ${Math.floor(selectedApplication.pharmacist.workExperienceMonths / 12)}年${selectedApplication.pharmacist.workExperienceMonths % 12}ヶ月`}
                           </p>
                         ) : selectedApplication.pharmacist?.experienceYears ? (
@@ -1031,7 +1029,7 @@ export default function PharmacyDashboard() {
                         </div>
                       </div>
                     )}
-                    
+
                     {selectedApplication.coverLetter && (
                       <div>
                         <h4 className="font-medium text-gray-800 mb-2">自己PR・志望動機</h4>
@@ -1040,7 +1038,7 @@ export default function PharmacyDashboard() {
                         </div>
                       </div>
                     )}
-                    
+
                     <div>
                       <h4 className="font-medium text-gray-800 mb-2">応募状況</h4>
                       <div className="bg-gray-50 p-4 rounded-lg space-y-2">
@@ -1049,11 +1047,11 @@ export default function PharmacyDashboard() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-end space-x-3 mt-6">
                     {selectedApplication.status === 'pending' || selectedApplication.status === 'under_review' ? (
                       <>
-                        <button 
+                        <button
                           onClick={async () => {
                             await handleAcceptApplication(selectedApplication.id);
                             setSelectedApplication(null);
@@ -1062,7 +1060,7 @@ export default function PharmacyDashboard() {
                         >
                           承認する
                         </button>
-                        <button 
+                        <button
                           onClick={async () => {
                             const reason = prompt('拒否理由を入力してください（任意）:');
                             await handleRejectApplication(selectedApplication.id, reason || undefined);
@@ -1075,7 +1073,7 @@ export default function PharmacyDashboard() {
                       </>
                     ) : selectedApplication.status === 'accepted' ? (
                       <>
-                        <button 
+                        <button
                           onClick={() => {
                             setShowDateProposalModal(true);
                           }}
@@ -1083,7 +1081,7 @@ export default function PharmacyDashboard() {
                         >
                           📅 初回出勤日の候補を提案
                         </button>
-                        <button 
+                        <button
                           onClick={() => {
                             // デフォルト値を設定
                             const threeDaysBeforeStart = new Date();
@@ -1098,7 +1096,7 @@ export default function PharmacyDashboard() {
                         >
                           📝 正式オファーを送信
                         </button>
-                        <button 
+                        <button
                           onClick={() => setSelectedApplication(null)}
                           className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
                         >
@@ -1106,7 +1104,7 @@ export default function PharmacyDashboard() {
                         </button>
                       </>
                     ) : (
-                      <button 
+                      <button
                         onClick={() => setSelectedApplication(null)}
                         className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
                       >
@@ -1124,25 +1122,25 @@ export default function PharmacyDashboard() {
                 <div className="bg-white rounded-lg p-6 w-full max-w-md">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">初回出勤日の候補を提案</h3>
-                    <button 
+                    <button
                       onClick={() => setShowDateProposalModal(false)}
                       className="text-gray-400 hover:text-gray-600"
                     >
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <p className="text-sm text-gray-600">
                       薬剤師に複数の候補日を提案してください（最大3つ）
                     </p>
-                    
+
                     {proposedDates.map((date, index) => (
                       <div key={index}>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           候補日 {index + 1}
                         </label>
-                        <input 
+                        <input
                           type="date"
                           value={date}
                           onChange={(e) => {
@@ -1159,22 +1157,22 @@ export default function PharmacyDashboard() {
                         />
                       </div>
                     ))}
-                    
+
                     <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                       <p className="text-xs text-orange-800">
                         ⚠️ 2週間後以降の日付のみ選択可能です
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-end space-x-3 mt-6">
-                    <button 
+                    <button
                       onClick={() => setShowDateProposalModal(false)}
                       className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
                     >
                       キャンセル
                     </button>
-                    <button 
+                    <button
                       onClick={handleProposeDates}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium"
                     >
@@ -1191,23 +1189,23 @@ export default function PharmacyDashboard() {
                 <div className="bg-white rounded-lg p-6 w-full max-w-md">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">正式オファーを送信</h3>
-                    <button 
+                    <button
                       onClick={() => setShowFormalOfferModal(false)}
                       className="text-gray-400 hover:text-gray-600"
                     >
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         初回出勤日 <span className="text-red-500">*</span>
                       </label>
-                      <input 
+                      <input
                         type="date"
                         value={offerData.initialWorkDate}
-                        onChange={(e) => setOfferData({...offerData, initialWorkDate: e.target.value})}
+                        onChange={(e) => setOfferData({ ...offerData, initialWorkDate: e.target.value })}
                         min={(() => {
                           const twoWeeksLater = new Date();
                           twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
@@ -1216,15 +1214,15 @@ export default function PharmacyDashboard() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         勤務日数 <span className="text-red-500">*</span>
                       </label>
-                      <input 
+                      <input
                         type="number"
                         value={offerData.workDays}
-                        onChange={(e) => setOfferData({...offerData, workDays: parseInt(e.target.value) || 10})}
+                        onChange={(e) => setOfferData({ ...offerData, workDays: parseInt(e.target.value) || 10 })}
                         min="10"
                         max="90"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -1233,7 +1231,7 @@ export default function PharmacyDashboard() {
                         10〜90日の範囲で入力してください
                       </p>
                     </div>
-                    
+
                     {/* 報酬総額の自動計算表示 */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <div className="space-y-2">
@@ -1263,15 +1261,15 @@ export default function PharmacyDashboard() {
                         💡 報酬は体験期間終了後に薬剤師へ直接お支払いください
                       </div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         勤務時間（目安）
                       </label>
-                      <input 
+                      <input
                         type="text"
                         value={offerData.workHours}
-                        onChange={(e) => setOfferData({...offerData, workHours: e.target.value})}
+                        onChange={(e) => setOfferData({ ...offerData, workHours: e.target.value })}
                         placeholder="9:00-18:00"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       />
@@ -1279,15 +1277,15 @@ export default function PharmacyDashboard() {
                         詳細なスケジュールは薬剤師と直接調整してください
                       </p>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         手数料支払い期限 <span className="text-red-500">*</span>
                       </label>
-                      <input 
+                      <input
                         type="date"
                         value={offerData.paymentDeadline}
-                        onChange={(e) => setOfferData({...offerData, paymentDeadline: e.target.value})}
+                        onChange={(e) => setOfferData({ ...offerData, paymentDeadline: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       />
                       <p className="text-xs text-gray-500 mt-1">
@@ -1301,15 +1299,15 @@ export default function PharmacyDashboard() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-end space-x-3 mt-6">
-                    <button 
+                    <button
                       onClick={() => setShowFormalOfferModal(false)}
                       className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
                     >
                       キャンセル
                     </button>
-                    <button 
+                    <button
                       onClick={handleSendFormalOffer}
                       className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium"
                     >
@@ -1327,7 +1325,7 @@ export default function PharmacyDashboard() {
         const acceptedThreads = messageThreads.filter(
           thread => thread.application?.status === 'accepted'
         );
-        
+
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -1356,17 +1354,16 @@ export default function PharmacyDashboard() {
                     {acceptedThreads.map((thread) => {
                       const lastMsg = thread.messages?.[0];
                       const threadUnread = thread._count?.messages || 0;
-                      const pharmacistName = thread.application?.pharmacist 
+                      const pharmacistName = thread.application?.pharmacist
                         ? `${thread.application.pharmacist.lastName} ${thread.application.pharmacist.firstName}`
                         : '薬剤師名未設定';
-                      
+
                       return (
-                        <div 
-                          key={thread.id} 
+                        <div
+                          key={thread.id}
                           onClick={() => setSelectedThread(thread)}
-                          className={`p-4 hover:bg-gray-50 cursor-pointer ${
-                            selectedThread?.id === thread.id ? 'bg-blue-50' : ''
-                          }`}
+                          className={`p-4 hover:bg-gray-50 cursor-pointer ${selectedThread?.id === thread.id ? 'bg-blue-50' : ''
+                            }`}
                         >
                           <div className="flex justify-between items-start mb-2">
                             <h4 className="font-medium text-gray-800">{pharmacistName}</h4>
@@ -1399,140 +1396,200 @@ export default function PharmacyDashboard() {
                       <div className="p-4 border-b flex-shrink-0">
                         <h3 className="font-semibold">メッセージ</h3>
                         <p className="text-sm text-gray-500 mt-1">
-                          {selectedThread.application?.pharmacist 
+                          {selectedThread.application?.pharmacist
                             ? `${selectedThread.application.pharmacist.lastName} ${selectedThread.application.pharmacist.firstName}`
                             : '薬剤師名未設定'}
-                          {selectedThread.application?.jobPosting?.title && 
+                          {selectedThread.application?.jobPosting?.title &&
                             ` - ${selectedThread.application.jobPosting.title}`
                           }
                         </p>
                       </div>
-                    
-                    <div className="flex-1 p-4 overflow-y-auto space-y-4 min-h-0">
-                      {messages.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">
-                          メッセージはまだありません。最初のメッセージを送信しましょう！
-                        </div>
-                      ) : (
-                        messages.map((message) => {
-                          const isMyMessage = message.sender.userType === 'pharmacy';
-                          
-                          return (
-                            <div 
-                              key={message.id} 
-                              className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
-                            >
-                              <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                                isMyMessage 
-                                  ? 'bg-blue-500 text-white' 
+
+                      <div className="flex-1 p-4 overflow-y-auto space-y-4 min-h-0">
+                        {messages.length === 0 ? (
+                          <div className="text-center py-8 text-gray-500">
+                            メッセージはまだありません。最初のメッセージを送信しましょう！
+                          </div>
+                        ) : (
+                          messages.map((message) => {
+                            const isMyMessage = message.sender.userType === 'pharmacy';
+
+                            return (
+                              <div
+                                key={message.id}
+                                className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
+                              >
+                                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isMyMessage
+                                  ? 'bg-blue-500 text-white'
                                   : 'bg-gray-200 text-gray-800'
-                              }`}>
-                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                                <p className={`text-xs mt-1 ${
-                                  isMyMessage ? 'text-blue-100' : 'text-gray-500'
-                                }`}>
-                                  {new Date(message.createdAt).toLocaleString('ja-JP')}
-                                </p>
+                                  }`}>
+                                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                  <p className={`text-xs mt-1 ${isMyMessage ? 'text-blue-100' : 'text-gray-500'
+                                    }`}>
+                                    {new Date(message.createdAt).toLocaleString('ja-JP')}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                    
-                    <div className="p-4 border-t flex-shrink-0">
-                      <div className="flex space-x-2">
-                        <input 
-                          type="text" 
-                          value={newMessage}
-                          onChange={(e) => setNewMessage(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && !isSendingMessage && handleSendMessage()}
-                          placeholder="メッセージを入力..."
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          disabled={isSendingMessage}
-                        />
-                        <button 
-                          onClick={handleSendMessage}
-                          disabled={isSendingMessage || !newMessage.trim()}
-                          className={`px-4 py-2 rounded-lg text-white ${
-                            isSendingMessage || !newMessage.trim()
+                            );
+                          })
+                        )}
+                      </div>
+
+                      <div className="p-4 border-t flex-shrink-0">
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && !isSendingMessage && handleSendMessage()}
+                            placeholder="メッセージを入力..."
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            disabled={isSendingMessage}
+                          />
+                          <button
+                            onClick={handleSendMessage}
+                            disabled={isSendingMessage || !newMessage.trim()}
+                            className={`px-4 py-2 rounded-lg text-white ${isSendingMessage || !newMessage.trim()
                               ? 'bg-gray-400 cursor-not-allowed'
                               : 'bg-blue-500 hover:bg-blue-600'
-                          }`}
-                        >
-                          {isSendingMessage ? '送信中...' : '送信'}
-                        </button>
-                      </div>
-                      
-                      {/* 採用ボタン */}
-                      <div className="mt-3 flex justify-end">
-                        <div className="w-full max-w-md">
-                          {(() => {
-                            if (!selectedThread?.application) {
-                              return null;
-                            }
-                            
-                            // このapplicationに対して既にオファーが送信されているかチェック
-                            const existingContract = contracts.find(
-                              c => c.applicationId === selectedThread.application.id
-                            );
-                            
-                            console.log('Debug - applicationId:', selectedThread.application.id);
-                            console.log('Debug - contracts:', contracts);
-                            console.log('Debug - existingContract:', existingContract);
-                            
-                            if (existingContract) {
-                              const statusMap: Record<string, { label: string; color: string; icon: typeof Clock }> = {
-                                'pending': { label: '承諾待ち', color: 'bg-yellow-100 text-yellow-800 border border-yellow-300', icon: Clock },
-                                'active': { label: '契約中', color: 'bg-green-100 text-green-800 border border-green-300', icon: CheckCircle },
-                                'rejected': { label: '辞退されました', color: 'bg-red-100 text-red-800 border border-red-300', icon: XCircle },
-                                'completed': { label: '契約完了', color: 'bg-blue-100 text-blue-800 border border-blue-300', icon: CheckCircle },
-                              };
-                              const statusInfo = statusMap[existingContract.status] || { 
-                                label: 'オファー送信済み', 
-                                color: 'bg-gray-100 text-gray-800 border border-gray-300', 
-                                icon: CheckCircle 
-                              };
-                              const StatusIcon = statusInfo.icon;
-                              
+                              }`}
+                          >
+                            {isSendingMessage ? '送信中...' : '送信'}
+                          </button>
+                        </div>
+
+                        {/* 採用ボタン */}
+                        <div className="mt-3 flex justify-end">
+                          <div className="w-full max-w-md">
+                            {(() => {
+                              if (!selectedThread?.application) {
+                                return null;
+                              }
+
+                              // このapplicationに対して既にオファーが送信されているかチェック
+                              const existingContract = contracts.find(
+                                c => c.applicationId === selectedThread.application.id
+                              );
+
+                              console.log('Debug - applicationId:', selectedThread.application.id);
+                              console.log('Debug - contracts:', contracts);
+                              console.log('Debug - existingContract:', existingContract);
+
+                              if (existingContract) {
+                                const statusMap: Record<string, { label: string; color: string; icon: typeof Clock }> = {
+                                  'pending': { label: '承諾待ち', color: 'bg-yellow-100 text-yellow-800 border border-yellow-300', icon: Clock },
+                                  'active': { label: '契約中', color: 'bg-green-100 text-green-800 border border-green-300', icon: CheckCircle },
+                                  'rejected': { label: '辞退されました', color: 'bg-red-100 text-red-800 border border-red-300', icon: XCircle },
+                                  'completed': { label: '契約完了', color: 'bg-blue-100 text-blue-800 border border-blue-300', icon: CheckCircle },
+                                };
+                                const statusInfo = statusMap[existingContract.status] || {
+                                  label: 'オファー送信済み',
+                                  color: 'bg-gray-100 text-gray-800 border border-gray-300',
+                                  icon: CheckCircle
+                                };
+                                const StatusIcon = statusInfo.icon;
+
+                                return (
+                                  <>
+                                    <div className={`w-full px-4 py-3 rounded-lg font-medium flex items-center justify-center space-x-2 ${statusInfo.color}`}>
+                                      <StatusIcon className="w-5 h-5" />
+                                      <span>{statusInfo.label}</span>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-2 p-3 bg-gray-50 rounded border">
+                                      <p>
+                                        {existingContract.status === 'pending' && '💡 薬剤師の承諾をお待ちください'}
+                                        {existingContract.status === 'active' && '✅ 薬剤師が承諾しました。契約が開始されています'}
+                                        {existingContract.status === 'rejected' && '❌ 薬剤師がオファーを辞退しました'}
+                                        {existingContract.status === 'completed' && '✓ 契約が完了しました'}
+                                      </p>
+                                    </div>
+                                  </>
+                                );
+                              }
+
                               return (
                                 <>
-                                  <div className={`w-full px-4 py-3 rounded-lg font-medium flex items-center justify-center space-x-2 ${statusInfo.color}`}>
-                                    <StatusIcon className="w-5 h-5" />
-                                    <span>{statusInfo.label}</span>
-                                  </div>
-                                  <div className="text-xs text-gray-500 mt-2 p-3 bg-gray-50 rounded border">
-                                    <p>
-                                      {existingContract.status === 'pending' && '💡 薬剤師の承諾をお待ちください'}
-                                      {existingContract.status === 'active' && '✅ 薬剤師が承諾しました。契約が開始されています'}
-                                      {existingContract.status === 'rejected' && '❌ 薬剤師がオファーを辞退しました'}
-                                      {existingContract.status === 'completed' && '✓ 契約が完了しました'}
-                                    </p>
+                                  <div className="space-y-3">
+                                    {!hasDateSelected ? (
+                                      <>
+                                        <button
+                                          onClick={() => {
+                                            if (selectedThread?.application) {
+                                              setSelectedApplication({
+                                                id: selectedThread.application.id,
+                                                status: 'accepted'
+                                              } as JobApplication);
+                                              setShowDateProposalModal(true);
+                                            }
+                                          }}
+                                          className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium flex items-center justify-center space-x-2"
+                                        >
+                                          <Calendar className="w-5 h-5" />
+                                          <span>📅 初回出勤日の候補を提案</span>
+                                        </button>
+                                        <p className="text-xs text-gray-500 text-center">
+                                          薬剤師に複数の候補日（最大3つ）を提案できます
+                                        </p>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                                          <p className="text-sm font-medium text-green-800 mb-2">
+                                            ✓ 薬剤師が日付を選択しました
+                                          </p>
+                                          <p className="text-sm text-green-700">
+                                            選択された日: {selectedDateFromMessage ? new Date(selectedDateFromMessage).toLocaleDateString('ja-JP', {
+                                              year: 'numeric',
+                                              month: 'long',
+                                              day: 'numeric',
+                                              weekday: 'short'
+                                            }) : ''}
+                                          </p>
+                                        </div>
+                                        <button
+                                          onClick={() => {
+                                            if (selectedThread?.application && selectedDateFromMessage) {
+                                              setSelectedApplication({
+                                                id: selectedThread.application.id,
+                                                status: 'accepted'
+                                              } as JobApplication);
+                                              // 選択された日付を初期値として設定
+                                              const selectedDate = new Date(selectedDateFromMessage);
+                                              const threeDaysBeforeStart = new Date(selectedDate);
+                                              threeDaysBeforeStart.setDate(threeDaysBeforeStart.getDate() - 3);
+
+                                              // 日付をYYYY-MM-DD形式に変換
+                                              const formatDate = (date: Date) => {
+                                                const year = date.getFullYear();
+                                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                const day = String(date.getDate()).padStart(2, '0');
+                                                return `${year}-${month}-${day}`;
+                                              };
+
+                                              setOfferData({
+                                                ...offerData,
+                                                initialWorkDate: formatDate(selectedDate),
+                                                paymentDeadline: formatDate(threeDaysBeforeStart)
+                                              });
+                                              setShowFormalOfferModal(true);
+                                            }
+                                          }}
+                                          className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium flex items-center justify-center space-x-2"
+                                        >
+                                          <FileText className="w-5 h-5" />
+                                          <span>📝 正式オファーを送信</span>
+                                        </button>
+                                      </>
+                                    )}
                                   </div>
                                 </>
                               );
-                            }
-                            
-                            return (
-                              <>
-                                <div className="space-y-3">
-                                  {/* 初回出勤日の提案とオファー機能は今後実装予定 */}
-                                  <div className="bg-blue-50 p-4 rounded-lg text-center text-gray-600">
-                                    メッセージでやり取りをしてください
-                                  </div>
-                                </div>
-                                
-                                <div className="text-xs text-gray-500 mt-2 p-3 bg-gray-50 rounded border">
-                                  <p>💡 まず候補日を提案し、薬剤師が選択後に正式オファーを送信してください。</p>
-                                </div>
-                              </>
-                            );
-                          })()}
+                            })()}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
                 ) : (
                   <div className="md:col-span-2 bg-white rounded-lg shadow flex items-center justify-center p-8">
                     <div className="text-center text-gray-500">
@@ -1585,7 +1642,7 @@ export default function PharmacyDashboard() {
                       };
                       const statusInfo = statusMap[contract.status] || { label: contract.status, color: 'bg-gray-100 text-gray-800' };
                       const hasWorkNotice = contract.status === 'active' && contract.terms;
-                      
+
                       return (
                         <tr key={contract.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -1648,25 +1705,24 @@ export default function PharmacyDashboard() {
                       {/* 契約基本情報 */}
                       <div className="bg-gray-50 rounded-lg p-4">
                         <h4 className="font-semibold text-gray-800 mb-3">契約基本情報</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
                             <p className="text-xs text-gray-500 mb-1">薬剤師名</p>
                             <p className="text-sm font-medium text-gray-900">
-                            {selectedContract.pharmacist?.lastName} {selectedContract.pharmacist?.firstName}
-                          </p>
-                        </div>
-                        <div>
+                              {selectedContract.pharmacist?.lastName} {selectedContract.pharmacist?.firstName}
+                            </p>
+                          </div>
+                          <div>
                             <p className="text-xs text-gray-500 mb-1">契約ステータス</p>
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              selectedContract.status === 'active' ? 'bg-green-100 text-green-800' :
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedContract.status === 'active' ? 'bg-green-100 text-green-800' :
                               selectedContract.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              selectedContract.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
+                                selectedContract.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                  'bg-gray-100 text-gray-800'
+                              }`}>
                               {selectedContract.status === 'active' ? '契約中' :
-                               selectedContract.status === 'pending' ? '承諾待ち' :
-                               selectedContract.status === 'rejected' ? '辞退' :
-                               selectedContract.status}
+                                selectedContract.status === 'pending' ? '承諾待ち' :
+                                  selectedContract.status === 'rejected' ? '辞退' :
+                                    selectedContract.status}
                             </span>
                           </div>
                           {selectedContract.application?.jobPosting?.title && (
@@ -1799,8 +1855,8 @@ export default function PharmacyDashboard() {
                           </div>
                           <div className="bg-white border-2 border-gray-300 rounded-lg p-6 shadow-sm">
                             <pre className="text-sm whitespace-pre-wrap font-mono text-gray-800 leading-relaxed">
-                            {selectedContract.terms}
-                          </pre>
+                              {selectedContract.terms}
+                            </pre>
                           </div>
                           <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
                             <p className="text-xs text-blue-800">
@@ -1888,7 +1944,7 @@ export default function PharmacyDashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-800">薬局からの募集掲載</h2>
-              <button 
+              <button
                 onClick={() => {
                   setEditingJob(null);
                   resetJobForm();
@@ -1900,7 +1956,7 @@ export default function PharmacyDashboard() {
                 <span>新規募集掲載</span>
               </button>
             </div>
-            
+
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
@@ -1911,7 +1967,7 @@ export default function PharmacyDashboard() {
                 <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-800 mb-2">求人がありません</h3>
                 <p className="text-gray-600 mb-4">新規募集を掲載して薬剤師を募集しましょう</p>
-                <button 
+                <button
                   onClick={() => {
                     setEditingJob(null);
                     resetJobForm();
@@ -1932,7 +1988,7 @@ export default function PharmacyDashboard() {
                     'temporary': '短期',
                     'contract': '契約社員'
                   };
-                  
+
                   const statusMap: Record<string, string> = {
                     'draft': '下書き',
                     'active': '掲載中',
@@ -1940,7 +1996,7 @@ export default function PharmacyDashboard() {
                     'closed': '募集終了',
                     'expired': '期限切れ'
                   };
-                  
+
                   return (
                     <div key={job.id} className="bg-white rounded-lg shadow p-6">
                       <div className="flex justify-between items-start">
@@ -1950,7 +2006,7 @@ export default function PharmacyDashboard() {
                             勤務地: {job.workLocation || '未設定'}
                           </p>
                           <p className="text-gray-600">
-                            給与: {job.minHourlyRate && job.maxHourlyRate 
+                            給与: {job.minHourlyRate && job.maxHourlyRate
                               ? `¥${job.minHourlyRate.toLocaleString()} - ¥${job.maxHourlyRate.toLocaleString()}/時`
                               : '応相談'}
                           </p>
@@ -1958,12 +2014,11 @@ export default function PharmacyDashboard() {
                             雇用形態: {employmentTypeMap[job.employmentType] || job.employmentType}
                           </p>
                           <div className="flex items-center mt-4 space-x-4">
-                            <span className={`px-3 py-1 rounded-full text-sm ${
-                              job.status === 'active' ? 'bg-green-100 text-green-800' :
+                            <span className={`px-3 py-1 rounded-full text-sm ${job.status === 'active' ? 'bg-green-100 text-green-800' :
                               job.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                              job.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
+                                job.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-red-100 text-red-800'
+                              }`}>
                               {statusMap[job.status] || job.status}
                             </span>
                             <span className="text-sm text-gray-500">
@@ -1972,13 +2027,13 @@ export default function PharmacyDashboard() {
                           </div>
                         </div>
                         <div className="flex space-x-2">
-                          <button 
+                          <button
                             onClick={() => openEditJobModal(job)}
                             className="text-blue-600 hover:text-blue-800 p-2 flex items-center"
                           >
                             <Edit className="w-4 h-4 mr-1" />編集
                           </button>
-                          <button 
+                          <button
                             onClick={async () => {
                               if (confirm('この求人を削除しますか？')) {
                                 try {
@@ -2001,7 +2056,7 @@ export default function PharmacyDashboard() {
                 })}
               </div>
             )}
-            
+
             {/* Job Posting Modal */}
             {showJobModal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -2010,7 +2065,7 @@ export default function PharmacyDashboard() {
                     <h3 className="text-xl font-semibold">
                       {editingJob ? '求人を編集' : '新規求人投稿'}
                     </h3>
-                    <button 
+                    <button
                       onClick={() => {
                         setShowJobModal(false);
                         setEditingJob(null);
@@ -2021,7 +2076,7 @@ export default function PharmacyDashboard() {
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  
+
                   <form onSubmit={(e) => {
                     e.preventDefault();
                     if (editingJob) {
@@ -2033,82 +2088,103 @@ export default function PharmacyDashboard() {
                     {/* 必須項目 */}
                     <div className="space-y-4">
                       <h4 className="font-semibold text-gray-900 border-b pb-2">必須項目</h4>
-                      
+
                       {/* 1. 求人タイトル */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        求人タイトル <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        type="text"
-                        value={jobFormData.title}
-                        onChange={(e) => setJobFormData({...jobFormData, title: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          求人タイトル <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={jobFormData.title}
+                          onChange={(e) => setJobFormData({ ...jobFormData, title: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                           placeholder="例：短期勤務の薬剤師を募集します"
-                        required
-                      />
-                    </div>
+                          required
+                        />
+                      </div>
 
                       {/* 2. 求人詳細 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        求人詳細
-                      </label>
-                      <textarea 
-                        value={jobFormData.description}
-                        onChange={(e) => setJobFormData({...jobFormData, description: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        rows={4}
-                        placeholder="仕事内容や職場の雰囲気など..."
-                      />
-                    </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          求人詳細
+                        </label>
+                        <textarea
+                          value={jobFormData.description}
+                          onChange={(e) => setJobFormData({ ...jobFormData, description: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          rows={4}
+                          placeholder="仕事内容や職場の雰囲気など..."
+                        />
+                      </div>
 
                       {/* 3. 勤務地 */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           勤務地
                         </label>
-                        <input 
+                        <input
                           type="text"
                           value={jobFormData.workLocation}
-                          onChange={(e) => setJobFormData({...jobFormData, workLocation: e.target.value})}
+                          onChange={(e) => setJobFormData({ ...jobFormData, workLocation: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                           placeholder="例：大阪市中央区"
                         />
-                    </div>
+                      </div>
 
-                      {/* 4. 希望勤務日数 */}
+                      {/* 4. 日給 */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          日給（円） <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          value={jobFormData.dailyRate}
+                          onChange={(e) => setJobFormData({ ...jobFormData, dailyRate: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="20000"
+                          min="20000"
+                          step="1000"
+                          required
+                        />
+                        <p className="text-xs text-gray-500 mt-1">下限：20,000円</p>
+                        {jobFormData.dailyRate && Number(jobFormData.dailyRate) < 20000 && (
+                          <p className="text-xs text-red-600 mt-1">⚠️ 日給は20,000円以上に設定してください</p>
+                        )}
+                      </div>
+
+                      {/* 5. 希望勤務日数 */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           希望勤務日数 <span className="text-red-500">*</span>
-                          </label>
-                          <input 
-                            type="number"
-                            value={jobFormData.contractDurationDays}
-                            onChange={(e) => setJobFormData({...jobFormData, contractDurationDays: e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            placeholder="30"
-                          min="10"
+                        </label>
+                        <input
+                          type="number"
+                          value={jobFormData.contractDurationDays}
+                          onChange={(e) => setJobFormData({ ...jobFormData, contractDurationDays: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="30"
+                          min="15"
                           max="90"
-                            required
-                          />
-                        <p className="text-xs text-gray-500 mt-1">10日〜90日（3ヶ月）の範囲で入力してください</p>
-                        {jobFormData.contractDurationDays && Number(jobFormData.contractDurationDays) >= 10 && Number(jobFormData.contractDurationDays) <= 90 && (
+                          required
+                        />
+                        <p className="text-xs text-gray-500 mt-1">15日〜90日（3ヶ月）の範囲で入力してください</p>
+                        {jobFormData.contractDurationDays && Number(jobFormData.contractDurationDays) >= 15 && Number(jobFormData.contractDurationDays) <= 90 && jobFormData.dailyRate && Number(jobFormData.dailyRate) >= 20000 && (
                           <p className="text-sm font-medium text-blue-600 mt-2">
-                            報酬総額：{(Number(jobFormData.contractDurationDays) * 2.5).toFixed(1)}万円（日給2.5万円 × {jobFormData.contractDurationDays}日）
+                            報酬総額：¥{(Number(jobFormData.contractDurationDays) * Number(jobFormData.dailyRate)).toLocaleString()}（日給 ¥{Number(jobFormData.dailyRate).toLocaleString()} × {jobFormData.contractDurationDays}日）
                           </p>
                         )}
                       </div>
 
-                      {/* 5. 勤務開始可能期間 */}
+                      {/* 6. 勤務開始可能期間 */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           勤務開始可能期間 <span className="text-red-500">*</span>
                         </label>
-                        <input 
+                        <input
                           type="date"
                           value={jobFormData.suggestedStartDate}
-                          onChange={(e) => setJobFormData({...jobFormData, suggestedStartDate: e.target.value})}
+                          onChange={(e) => setJobFormData({ ...jobFormData, suggestedStartDate: e.target.value })}
                           min={(() => {
                             const twoWeeksLater = new Date();
                             twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
@@ -2126,41 +2202,41 @@ export default function PharmacyDashboard() {
                         <p className="text-xs text-orange-600 mt-1">
                           ※ 今日から2週間後以降の日付を選択してください
                         </p>
-                    </div>
+                      </div>
 
-                      {/* 6. 募集期限 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {/* 7. 募集期限 */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           募集期限 <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        type="date"
-                        value={jobFormData.applicationDeadline}
-                        onChange={(e) => setJobFormData({...jobFormData, applicationDeadline: e.target.value})}
-                        min={(() => {
-                          const minDate = new Date();
-                          minDate.setDate(minDate.getDate() + 3);
-                          return minDate.toISOString().split('T')[0];
-                        })()}
-                        max={(() => {
-                          const maxDate = new Date();
-                          maxDate.setDate(maxDate.getDate() + 14);
-                          return maxDate.toISOString().split('T')[0];
-                        })()}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
+                        </label>
+                        <input
+                          type="date"
+                          value={jobFormData.applicationDeadline}
+                          onChange={(e) => setJobFormData({ ...jobFormData, applicationDeadline: e.target.value })}
+                          min={(() => {
+                            const minDate = new Date();
+                            minDate.setDate(minDate.getDate() + 3);
+                            return minDate.toISOString().split('T')[0];
+                          })()}
+                          max={(() => {
+                            const maxDate = new Date();
+                            maxDate.setDate(maxDate.getDate() + 14);
+                            return maxDate.toISOString().split('T')[0];
+                          })()}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          required
+                        />
                         <p className="text-xs text-gray-500 mt-1">デフォルト：今日から7日後（最短3日後、最長14日後）</p>
-                    </div>
+                      </div>
 
-                      {/* 7. 応募条件・資格 */}
+                      {/* 8. 応募条件・資格 */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           応募条件・資格
                         </label>
-                        <textarea 
+                        <textarea
                           value={jobFormData.requirements}
-                          onChange={(e) => setJobFormData({...jobFormData, requirements: e.target.value})}
+                          onChange={(e) => setJobFormData({ ...jobFormData, requirements: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                           rows={3}
                           placeholder="例：薬剤師免許、調剤経験3年以上"
@@ -2171,25 +2247,25 @@ export default function PharmacyDashboard() {
                     {/* 任意項目 */}
                     <div className="space-y-4 border-t pt-4">
                       <h4 className="font-semibold text-gray-900 border-b pb-2">任意項目（参考情報）</h4>
-                      
-                      {/* 8. 希望勤務曜日・時間帯 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+
+                      {/* 9. 希望勤務曜日・時間帯 */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           希望勤務曜日・時間帯
-                      </label>
-                      <textarea 
+                        </label>
+                        <textarea
                           value={jobFormData.preferredSchedule}
-                          onChange={(e) => setJobFormData({...jobFormData, preferredSchedule: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        rows={3}
+                          onChange={(e) => setJobFormData({ ...jobFormData, preferredSchedule: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          rows={3}
                           placeholder="例：火・木・金の午前中希望、平日9:00-18:00など"
-                      />
+                        />
                         <p className="text-xs text-gray-500 mt-1">※あくまで希望です。実際の勤務日時は薬剤師と相談の上決定します</p>
                       </div>
                     </div>
 
                     <div className="flex justify-end space-x-3 pt-4 border-t">
-                      <button 
+                      <button
                         type="button"
                         onClick={() => {
                           setShowJobModal(false);
@@ -2201,14 +2277,13 @@ export default function PharmacyDashboard() {
                       >
                         キャンセル
                       </button>
-                      <button 
+                      <button
                         type="submit"
                         disabled={isSubmitting}
-                        className={`px-6 py-2 rounded-lg text-white ${
-                          isSubmitting
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-blue-500 hover:bg-blue-600'
-                        }`}
+                        className={`px-6 py-2 rounded-lg text-white ${isSubmitting
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-blue-500 hover:bg-blue-600'
+                          }`}
                       >
                         {isSubmitting ? (
                           <>
@@ -2236,7 +2311,7 @@ export default function PharmacyDashboard() {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-800">プロフィールプレビュー</h2>
-                <button 
+                <button
                   onClick={() => setIsPreviewMode(false)}
                   className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
                 >
@@ -2306,7 +2381,7 @@ export default function PharmacyDashboard() {
                   <p className="text-gray-700 text-sm mb-4">
                     {profile?.description || '特徴は登録されていません'}
                   </p>
-                  
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h5 className="font-medium text-gray-800 mb-2">強み・特色</h5>
@@ -2323,7 +2398,7 @@ export default function PharmacyDashboard() {
                         <p className="text-sm text-gray-500">登録されていません</p>
                       )}
                     </div>
-                    
+
                     <div>
                       <h5 className="font-medium text-gray-800 mb-2">設備・システム</h5>
                       {profile?.facilities && profile.facilities.length > 0 ? (
@@ -2345,13 +2420,13 @@ export default function PharmacyDashboard() {
             </div>
           );
         }
-        
+
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-800">プロフィール管理</h2>
               <div className="flex space-x-2">
-                <button 
+                <button
                   onClick={() => setIsPreviewMode(true)}
                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
                 >
@@ -2370,58 +2445,58 @@ export default function PharmacyDashboard() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">薬局名 <span className="text-red-500">*</span></label>
-                  <input 
-                    type="text" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.pharmacyName || ''}
-                    onChange={(e) => setProfileForm({...profileForm, pharmacyName: e.target.value})}
-                    required 
+                    onChange={(e) => setProfileForm({ ...profileForm, pharmacyName: e.target.value })}
+                    required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">住所 <span className="text-red-500">*</span></label>
-                  <input 
-                    type="text" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.address || ''}
-                    onChange={(e) => setProfileForm({...profileForm, address: e.target.value})}
-                    required 
+                    onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
+                    required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">電話番号</label>
-                  <input 
-                    type="tel" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="tel"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.phone || ''}
-                    onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
+                    onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">FAX</label>
-                  <input 
-                    type="tel" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="tel"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.fax || ''}
-                    onChange={(e) => setProfileForm({...profileForm, fax: e.target.value})}
+                    onChange={(e) => setProfileForm({ ...profileForm, fax: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">営業開始時間</label>
-                  <input 
-                    type="time" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="time"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.businessHoursStart || ''}
-                    onChange={(e) => setProfileForm({...profileForm, businessHoursStart: e.target.value})}
+                    onChange={(e) => setProfileForm({ ...profileForm, businessHoursStart: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">営業終了時間</label>
-                  <input 
-                    type="time" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="time"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.businessHoursEnd || ''}
-                    onChange={(e) => setProfileForm({...profileForm, businessHoursEnd: e.target.value})}
+                    onChange={(e) => setProfileForm({ ...profileForm, businessHoursEnd: e.target.value })}
                   />
                 </div>
               </div>
@@ -2432,38 +2507,38 @@ export default function PharmacyDashboard() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">最寄り駅</label>
-                  <input 
-                    type="text" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.nearestStation || ''}
-                    onChange={(e) => setProfileForm({...profileForm, nearestStation: e.target.value})}
+                    onChange={(e) => setProfileForm({ ...profileForm, nearestStation: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">設立日</label>
-                  <input 
-                    type="date" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.establishedDate || ''}
-                    onChange={(e) => setProfileForm({...profileForm, establishedDate: e.target.value})}
+                    onChange={(e) => setProfileForm({ ...profileForm, establishedDate: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">1日の処方箋枚数</label>
-                  <input 
-                    type="number" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="number"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.dailyPrescriptionCount || ''}
-                    onChange={(e) => setProfileForm({...profileForm, dailyPrescriptionCount: parseInt(e.target.value)})}
+                    onChange={(e) => setProfileForm({ ...profileForm, dailyPrescriptionCount: parseInt(e.target.value) })}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">スタッフ数</label>
-                  <input 
-                    type="number" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                  <input
+                    type="number"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.staffCount || ''}
-                    onChange={(e) => setProfileForm({...profileForm, staffCount: parseInt(e.target.value)})}
+                    onChange={(e) => setProfileForm({ ...profileForm, staffCount: parseInt(e.target.value) })}
                   />
                 </div>
               </div>
@@ -2474,11 +2549,11 @@ export default function PharmacyDashboard() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">薬局の紹介文</label>
-                  <textarea 
-                    rows={4} 
+                  <textarea
+                    rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     value={profileForm.description || ''}
-                    onChange={(e) => setProfileForm({...profileForm, description: e.target.value})}
+                    onChange={(e) => setProfileForm({ ...profileForm, description: e.target.value })}
                   ></textarea>
                 </div>
               </div>
@@ -2490,7 +2565,7 @@ export default function PharmacyDashboard() {
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-800">1ヶ月の勤務時間と費用</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-blue-50 rounded-lg p-6">
                 <div className="flex items-center">
@@ -2501,7 +2576,7 @@ export default function PharmacyDashboard() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-green-50 rounded-lg p-6">
                 <div className="flex items-center">
                   <DollarSign className="w-8 h-8 text-green-500" />
@@ -2511,7 +2586,7 @@ export default function PharmacyDashboard() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-yellow-50 rounded-lg p-6">
                 <div className="flex items-center">
                   <Users className="w-8 h-8 text-yellow-500" />
@@ -2522,12 +2597,12 @@ export default function PharmacyDashboard() {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-lg shadow">
               <div className="p-6 border-b">
                 <h3 className="text-lg font-semibold">薬剤師別費用詳細</h3>
               </div>
-              
+
               <div className="overflow-x-auto">
                 <table className="min-w-full">
                   <thead className="bg-gray-50">
@@ -2582,14 +2657,14 @@ export default function PharmacyDashboard() {
             {isLoadingFees ? (
               <div className="text-center py-12">
                 <p className="text-gray-600">読み込み中...</p>
-            </div>
+              </div>
             ) : fees.length === 0 ? (
               <div className="bg-white rounded-lg shadow p-8 text-center">
                 <DollarSign className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-800 mb-2">手数料はありません</h3>
                 <p className="text-gray-600">採用が確定すると、手数料が表示されます。</p>
-                </div>
-              ) : (
+              </div>
+            ) : (
               <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -2624,7 +2699,7 @@ export default function PharmacyDashboard() {
                           {fee.contractId.slice(0, 8)}...
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {fee.workContracts?.pharmacistProfiles 
+                          {fee.workContracts?.pharmacistProfiles
                             ? `${fee.workContracts.pharmacistProfiles.lastName} ${fee.workContracts.pharmacistProfiles.firstName}`
                             : '未設定'}
                         </td>
@@ -2638,9 +2713,8 @@ export default function PharmacyDashboard() {
                           {new Date(fee.paymentDeadline).toLocaleDateString('ja-JP')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            feeStatusColorMap[fee.status] || 'bg-gray-100 text-gray-800'
-                          }`}>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${feeStatusColorMap[fee.status] || 'bg-gray-100 text-gray-800'
+                            }`}>
                             {feeStatusMap[fee.status] || fee.status}
                           </span>
                         </td>
@@ -2653,16 +2727,16 @@ export default function PharmacyDashboard() {
                           </button>
                         </td>
                       </tr>
-                  ))}
+                    ))}
                   </tbody>
                 </table>
-                </div>
-              )}
+              </div>
+            )}
 
             {/* 注意事項 */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 className="text-blue-900 font-semibold mb-2">💡 プラットフォーム手数料について</h4>
-                  <ul className="text-sm text-blue-800 space-y-1">
+              <ul className="text-sm text-blue-800 space-y-1">
                 <li>• 手数料は初回出勤日の3日前までにお支払いください</li>
                 <li>• 支払い確認後、薬剤師の個人情報（氏名、電話番号、メールアドレス）が開示されます</li>
                 <li>• 支払い方法については、運営から別途ご連絡いたします</li>
@@ -2690,10 +2764,9 @@ export default function PharmacyDashboard() {
                         <p><span className="font-medium">手数料ID:</span> {selectedFee.id}</p>
                         <p><span className="font-medium">契約ID:</span> {selectedFee.contractId}</p>
                         <p><span className="font-medium">金額:</span> ¥{selectedFee.amount.toLocaleString()}</p>
-                        <p><span className="font-medium">ステータス:</span> 
-                          <span className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            feeStatusColorMap[selectedFee.status] || 'bg-gray-100 text-gray-800'
-                          }`}>
+                        <p><span className="font-medium">ステータス:</span>
+                          <span className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${feeStatusColorMap[selectedFee.status] || 'bg-gray-100 text-gray-800'
+                            }`}>
                             {feeStatusMap[selectedFee.status] || selectedFee.status}
                           </span>
                         </p>
@@ -2705,11 +2778,11 @@ export default function PharmacyDashboard() {
                     </div>
 
                     {selectedFee.workContracts && (
-                    <div>
+                      <div>
                         <h4 className="font-medium text-gray-800 mb-2">契約情報</h4>
                         <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                           {selectedFee.workContracts.pharmacistProfiles && (
-                            <p><span className="font-medium">薬剤師:</span> 
+                            <p><span className="font-medium">薬剤師:</span>
                               {` ${selectedFee.workContracts.pharmacistProfiles.lastName} ${selectedFee.workContracts.pharmacistProfiles.firstName}`}
                             </p>
                           )}
@@ -2725,7 +2798,7 @@ export default function PharmacyDashboard() {
                           {selectedFee.workContracts.totalCompensation && (
                             <p><span className="font-medium">報酬総額:</span> ¥{selectedFee.workContracts.totalCompensation.toLocaleString()}</p>
                           )}
-                    </div>
+                        </div>
                       </div>
                     )}
 
@@ -2809,7 +2882,7 @@ export default function PharmacyDashboard() {
     <div className="flex h-screen bg-gray-100">
       {/* Mobile menu overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
@@ -2825,14 +2898,14 @@ export default function PharmacyDashboard() {
             <h1 className="text-xl font-bold text-gray-800">薬局管理システム</h1>
             <p className="text-sm text-gray-600">{profile?.pharmacyName || '薬局名'}</p>
           </div>
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(false)}
             className="lg:hidden text-gray-500 hover:text-gray-700"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
-        
+
         <nav className="mt-6 pb-20 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -2843,11 +2916,10 @@ export default function PharmacyDashboard() {
                   setActiveMenu(item.id);
                   setIsSidebarOpen(false);
                 }}
-                className={`w-full flex items-center px-6 py-3 text-left hover:bg-blue-50 transition-colors ${
-                  activeMenu === item.id 
-                    ? 'bg-blue-50 border-r-4 border-blue-500 text-blue-700' 
-                    : 'text-gray-700'
-                }`}
+                className={`w-full flex items-center px-6 py-3 text-left hover:bg-blue-50 transition-colors ${activeMenu === item.id
+                  ? 'bg-blue-50 border-r-4 border-blue-500 text-blue-700'
+                  : 'text-gray-700'
+                  }`}
               >
                 <Icon className={`w-5 h-5 mr-3 ${activeMenu === item.id ? 'text-blue-500' : 'text-gray-400'}`} />
                 <span className="text-sm font-medium">{item.label}</span>
@@ -2855,7 +2927,7 @@ export default function PharmacyDashboard() {
             );
           })}
         </nav>
-        
+
         <div className="absolute bottom-0 w-80 p-6 border-t">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
@@ -2864,7 +2936,7 @@ export default function PharmacyDashboard() {
             </div>
             <NotificationBell />
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="flex items-center space-x-2 w-full hover:text-gray-800"
           >
@@ -2888,11 +2960,211 @@ export default function PharmacyDashboard() {
             <NotificationBell />
           </div>
         </div>
-        
+
         <div className="p-4 lg:p-8">
           {renderContent()}
         </div>
       </div>
+
+      {/* 日付候補提案モーダル - 最上位レベルに配置 */}
+      {showDateProposalModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">初回出勤日の候補を提案</h3>
+              <button
+                onClick={() => setShowDateProposalModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                薬剤師に複数の候補日を提案してください（最大3つ）
+              </p>
+
+              {proposedDates.map((date, index) => (
+                <div key={index}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    候補日 {index + 1}
+                  </label>
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => {
+                      const newDates = [...proposedDates];
+                      newDates[index] = e.target.value;
+                      setProposedDates(newDates);
+                    }}
+                    min={(() => {
+                      const twoWeeksLater = new Date();
+                      twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
+                      return twoWeeksLater.toISOString().split('T')[0];
+                    })()}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
+
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                <p className="text-xs text-orange-800">
+                  ⚠️ 2週間後以降の日付のみ選択可能です
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowDateProposalModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleProposeDates}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium"
+              >
+                送信する
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 正式オファー送信モーダル - 最上位レベルに配置 */}
+      {showFormalOfferModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">正式オファーを送信</h3>
+              <button
+                onClick={() => setShowFormalOfferModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  初回出勤日 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={offerData.initialWorkDate}
+                  onChange={(e) => setOfferData({ ...offerData, initialWorkDate: e.target.value })}
+                  min={(() => {
+                    const twoWeeksLater = new Date();
+                    twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
+                    return twoWeeksLater.toISOString().split('T')[0];
+                  })()}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  日給（円） <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={offerData.dailyRate}
+                  onChange={(e) => setOfferData({ ...offerData, dailyRate: Number(e.target.value) })}
+                  min={20000}
+                  step={1000}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                {offerData.dailyRate < 20000 && (
+                  <p className="text-xs text-red-600 mt-1">⚠️ 日給は20,000円以上に設定してください</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  勤務日数（日） <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={offerData.workDays}
+                  onChange={(e) => setOfferData({ ...offerData, workDays: Number(e.target.value) })}
+                  min={15}
+                  max={90}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">15日〜90日の範囲で設定してください</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  勤務時間 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={offerData.workHours}
+                  onChange={(e) => setOfferData({ ...offerData, workHours: e.target.value })}
+                  placeholder="例: 9:00-18:00"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  手数料支払い期限 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={offerData.paymentDeadline}
+                  onChange={(e) => setOfferData({ ...offerData, paymentDeadline: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  初回出勤日の3日前までに設定することを推奨します
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-blue-900 mb-2">報酬計算</h4>
+                <div className="space-y-1 text-sm text-blue-800">
+                  <div className="flex justify-between">
+                    <span>日給:</span>
+                    <span className="font-medium">¥{offerData.dailyRate.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>勤務日数:</span>
+                    <span className="font-medium">{offerData.workDays}日</span>
+                  </div>
+                  <div className="flex justify-between border-t border-blue-200 pt-1 mt-1">
+                    <span className="font-semibold">報酬総額:</span>
+                    <span className="font-bold">¥{(offerData.dailyRate * offerData.workDays).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span>プラットフォーム手数料 (40%):</span>
+                    <span className="font-medium">¥{Math.floor(offerData.dailyRate * offerData.workDays * 0.4).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowFormalOfferModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleSendFormalOffer}
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium"
+              >
+                送信する
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

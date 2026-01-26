@@ -6,6 +6,7 @@ export interface MessageData {
   message?: string;
   initialWorkDate?: string;
   workDays?: number;
+  dailyRate?: number; // 追加: 日給
   totalCompensation?: number;
   workHours?: string;
   platformFee?: number;
@@ -22,6 +23,7 @@ export interface StructuredMessage {
   selectedDate?: string | null;
   initialWorkDate?: string | null;
   workDays?: number | null;
+  dailyRate?: number | null; // 追加: 日給
   totalCompensation?: number | null;
   workHours?: string | null;
   platformFee?: number | null;
@@ -46,6 +48,7 @@ export interface SendFormalOfferData {
   applicationId: number;
   initialWorkDate: string; // ISO形式の日付文字列
   workDays: number;
+  dailyRate: number; // 追加: 日給（20,000円以上）
   workHours: string;
   paymentDeadline: string; // ISO形式の日付文字列
   // totalCompensationとplatformFeeはサーバー側で自動計算される
