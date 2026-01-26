@@ -1,0 +1,55 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Quick Commit",
+      "type": "shell",
+      "command": "./quick-commit.sh",
+      "args": ["${input:commitMessage}"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Quick Commit (Auto Message)",
+      "type": "shell",
+      "command": "./quick-commit.sh",
+      "args": ["実装内容の更新"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Git Status",
+      "type": "shell",
+      "command": "git status",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "commitMessage",
+      "type": "promptString",
+      "description": "コミットメッセージを入力してください",
+      "default": "実装内容の更新"
+    }
+  ]
+}
+
