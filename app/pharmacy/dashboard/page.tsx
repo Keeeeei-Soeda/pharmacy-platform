@@ -125,13 +125,14 @@ export default function PharmacyDashboard() {
   // Structured Message States
   const [showDateProposalModal, setShowDateProposalModal] = useState(false);
   const [proposedDates, setProposedDates] = useState<string[]>(['', '', '']);
+  const [hasDateSelected, setHasDateSelected] = useState(false);
+  const [selectedDateFromMessage, setSelectedDateFromMessage] = useState<string | null>(null);
   const [showFormalOfferModal, setShowFormalOfferModal] = useState(false);
   const [offerData, setOfferData] = useState({
     initialWorkDate: '',
-    workDays: 30,
-    totalCompensation: 750000,
+    workDays: 15,
+    dailyRate: 20000,
     workHours: '9:00-18:00',
-    platformFee: 50000,
     paymentDeadline: ''
   });
 
@@ -141,7 +142,6 @@ export default function PharmacyDashboard() {
     { id: 'メッセージ' as ActiveMenu, label: 'メッセージ管理', icon: MessageSquare },
     { id: '募集掲載' as ActiveMenu, label: '薬局からの募集掲載', icon: FileText },
     { id: '契約管理' as ActiveMenu, label: '契約管理', icon: FileText },
-    { id: '費用管理' as ActiveMenu, label: 'プラットフォーム手数料管理', icon: DollarSign },
     { id: 'プロフィール管理' as ActiveMenu, label: 'プロフィール管理', icon: UserCheck },
     { id: 'プロフィール' as ActiveMenu, label: '採用薬剤師のプロフィール', icon: UserCheck },
     { id: '費用管理' as ActiveMenu, label: '報酬計算と費用管理', icon: Calculator }
@@ -163,6 +163,39 @@ export default function PharmacyDashboard() {
       fetchMessages(selectedThread.id);
     }
   }, [selectedThread]);
+
+  // 構造化メッセージを取得して、日付選択済みかどうかを確認
+  useEffect(() => {
+    if (selectedThread?.application?.id) {
+      const fetchStructuredMessages = async () => {
+        try {
+          const { getStructuredMessages } = await import('@/lib/api/structuredMessages');
+          const messages = await getStructuredMessages(selectedThread.application.id);
+
+          // 日付選択済みのメッセージを探す
+          const dateSelectionMsg = messages.find(
+            m => m.messageType === 'date_selection' && m.selectedDate
+          );
+
+          if (dateSelectionMsg && dateSelectionMsg.selectedDate) {
+            setHasDateSelected(true);
+            setSelectedDateFromMessage(dateSelectionMsg.selectedDate);
+          } else {
+            setHasDateSelected(false);
+            setSelectedDateFromMessage(null);
+          }
+        } catch (err) {
+          console.error('Failed to fetch structured messages:', err);
+          setHasDateSelected(false);
+          setSelectedDateFromMessage(null);
+        }
+      };
+      fetchStructuredMessages();
+    } else {
+      setHasDateSelected(false);
+      setSelectedDateFromMessage(null);
+    }
+  }, [selectedThread?.application?.id]);
 
   // Fetch profile when 'プロフィール管理' tab is selected
   useEffect(() => {
@@ -532,15 +565,25 @@ export default function PharmacyDashboard() {
       return;
     }
 
-    // 報酬と手数料を自動計算（日給2.5万円固定、手数料40%）
-    const DAILY_RATE = 25000;
-    const totalCompensation = DAILY_RATE * offerData.workDays;
+    // バリデーション
+    if (!offerData.dailyRate || offerData.dailyRate < 20000) {
+      alert('日給は20,000円以上に設定してください');
+      return;
+    }
+    if (!offerData.workDays || offerData.workDays < 15 || offerData.workDays > 90) {
+      alert('勤務日数は15日から90日の範囲で設定してください');
+      return;
+    }
+
+    // 報酬と手数料を自動計算（手数料40%）
+    const totalCompensation = offerData.dailyRate * offerData.workDays;
     const platformFee = Math.floor(totalCompensation * 0.40);
 
     try {
       await sendFormalOffer({
         applicationId: selectedApplication.id,
         initialWorkDate: offerData.initialWorkDate,
+        dailyRate: offerData.dailyRate,
         workDays: offerData.workDays,
         workHours: offerData.workHours,
         paymentDeadline: offerData.paymentDeadline
@@ -550,10 +593,9 @@ export default function PharmacyDashboard() {
       // フォームをリセット
       setOfferData({
         initialWorkDate: '',
-        workDays: 30,
-        totalCompensation: 750000,
+        workDays: 15,
+        dailyRate: 20000,
         workHours: '9:00-18:00',
-        platformFee: 50000,
         paymentDeadline: ''
       });
     } catch (err) {

@@ -807,8 +807,8 @@ export default function PharmacistDashboard() {
                       onClick={handleApply}
                       disabled={isApplying}
                       className={`px-6 py-2 rounded-lg text-white ${isApplying
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-blue-500 hover:bg-blue-600'
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-500 hover:bg-blue-600'
                         }`}
                     >
                       {isApplying ? (
@@ -940,10 +940,10 @@ export default function PharmacistDashboard() {
                                       onClick={() => handleSelectDate(msg.id, date)}
                                       disabled={!!msg.selectedDate}
                                       className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${msg.selectedDate === date
-                                          ? 'bg-green-500 text-white'
-                                          : msg.selectedDate
-                                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                            : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                        ? 'bg-green-500 text-white'
+                                        : msg.selectedDate
+                                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                          : 'bg-blue-500 hover:bg-blue-600 text-white'
                                         }`}
                                     >
                                       {msg.selectedDate === date && '✓ '}{new Date(date).toLocaleDateString('ja-JP', {
@@ -1029,8 +1029,8 @@ export default function PharmacistDashboard() {
                                   </div>
                                 ) : (
                                   <div className={`p-2 rounded-lg text-sm font-medium ${msg.pharmacistResponse === 'accepted'
-                                      ? 'bg-green-100 text-green-800'
-                                      : 'bg-red-100 text-red-800'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-red-100 text-red-800'
                                     }`}>
                                     {msg.pharmacistResponse === 'accepted'
                                       ? '✓ オファーを承諾しました'
@@ -1064,8 +1064,8 @@ export default function PharmacistDashboard() {
                               className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
                             >
                               <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isMyMessage
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-gray-200 text-gray-800'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-200 text-gray-800'
                                 }`}>
                                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                                 <p className={`text-xs mt-1 ${isMyMessage ? 'text-blue-100' : 'text-gray-500'
@@ -1094,8 +1094,8 @@ export default function PharmacistDashboard() {
                           onClick={handleSendMessage}
                           disabled={isSendingMessage || !newMessage.trim()}
                           className={`px-4 py-2 rounded-lg text-white ${isSendingMessage || !newMessage.trim()
-                              ? 'bg-gray-400 cursor-not-allowed'
-                              : 'bg-blue-500 hover:bg-blue-600'
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-blue-500 hover:bg-blue-600'
                             }`}
                         >
                           {isSendingMessage ? '送信中...' : '送信'}
@@ -1406,10 +1406,10 @@ export default function PharmacistDashboard() {
                 {/* 本人確認ステータス */}
                 {licenseInfo && (
                   <div className={`rounded-lg p-4 ${licenseInfo.verificationStatus === 'approved'
-                      ? 'bg-green-50 border border-green-200'
-                      : licenseInfo.verificationStatus === 'rejected'
-                        ? 'bg-red-50 border border-red-200'
-                        : 'bg-yellow-50 border border-yellow-200'
+                    ? 'bg-green-50 border border-green-200'
+                    : licenseInfo.verificationStatus === 'rejected'
+                      ? 'bg-red-50 border border-red-200'
+                      : 'bg-yellow-50 border border-yellow-200'
                     }`}>
                     <div className="flex items-center justify-between">
                       <div>
@@ -2317,8 +2317,8 @@ export default function PharmacistDashboard() {
                   setIsSidebarOpen(false);
                 }}
                 className={`w-full flex items-center px-6 py-3 text-left hover:bg-blue-50 transition-colors ${activeMenu === item.id
-                    ? 'bg-blue-50 border-r-4 border-blue-500 text-blue-700'
-                    : 'text-gray-700'
+                  ? 'bg-blue-50 border-r-4 border-blue-500 text-blue-700'
+                  : 'text-gray-700'
                   }`}
               >
                 <Icon className={`w-5 h-5 mr-3 ${activeMenu === item.id ? 'text-blue-500' : 'text-gray-400'}`} />

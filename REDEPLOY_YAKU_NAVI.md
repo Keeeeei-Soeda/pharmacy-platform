@@ -57,27 +57,70 @@ ls -la next.config.ts
 
 ## 🌐 Step 2: VPSサーバーへのアップロード（10分）
 
-### 方法A: rsyncでアップロード（推奨）
+### ⚙️ Step 2-0: SSH設定ファイルの設定（初回のみ・パスワード入力回避）
+
+SSH鍵認証でパスワード入力を回避するため、SSH設定ファイルを設定します：
+
+```bash
+# SSH設定ファイルを作成（既に作成済みの場合はスキップ）
+cat >> ~/.ssh/config << 'EOF'
+
+# yaku-navi.com 設定
+Host yaku-navi
+    HostName 162.43.8.168
+    User root
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+    StrictHostKeyChecking no
+    UserKnownHostsFile ~/.ssh/known_hosts
+
+Host yaku-navi.com
+    HostName 162.43.8.168
+    User root
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+    StrictHostKeyChecking no
+    UserKnownHostsFile ~/.ssh/known_hosts
+EOF
+
+# パーミッションを設定
+chmod 600 ~/.ssh/config
+```
+
+**設定後は、`yaku-navi` または `yaku-navi.com` という短い名前で接続できます（パスワード不要）**
+
+### 方法A: rsyncでアップロード（推奨・パスワード不要）
 
 ```bash
 # プロジェクトルートから実行
 cd /Users/soedakei/pharmacy-platform
 
-# バックエンドをアップロード
+# バックエンドをアップロード（パスワード不要）
 rsync -avz --exclude 'node_modules' --exclude '.git' \
-  backend/ ユーザー名@yaku-navi.com:/var/www/pharmacy-platform/backend/
+  backend/ yaku-navi:/var/www/pharmacy-platform/backend/
 
-# フロントエンドをアップロード
+# フロントエンドのファイルをアップロード（パスワード不要）
 rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.next' \
-  --exclude 'app' --exclude 'components' --exclude 'lib' \
-  . ユーザー名@yaku-navi.com:/var/www/pharmacy-platform/
+  app/ yaku-navi:/var/www/pharmacy-platform/app/
+rsync -avz --exclude 'node_modules' --exclude '.git' \
+  components/ yaku-navi:/var/www/pharmacy-platform/components/
+rsync -avz --exclude 'node_modules' --exclude '.git' \
+  lib/ yaku-navi:/var/www/pharmacy-platform/lib/
+rsync -avz --exclude 'node_modules' --exclude '.git' \
+  public/ yaku-navi:/var/www/pharmacy-platform/public/
 
-# ecosystem.config.jsをアップロード（重要）
-scp ecosystem.config.js ユーザー名@yaku-navi.com:/var/www/pharmacy-platform/
+# ecosystem.config.jsをアップロード（重要・パスワード不要）
+scp ecosystem.config.js yaku-navi:/var/www/pharmacy-platform/
 
-# package.jsonをアップロード
-scp package.json ユーザー名@yaku-navi.com:/var/www/pharmacy-platform/
-scp backend/package.json ユーザー名@yaku-navi.com:/var/www/pharmacy-platform/backend/
+# package.jsonをアップロード（パスワード不要）
+scp package.json yaku-navi:/var/www/pharmacy-platform/
+scp package-lock.json yaku-navi:/var/www/pharmacy-platform/
+scp next.config.ts yaku-navi:/var/www/pharmacy-platform/
+scp tsconfig.json yaku-navi:/var/www/pharmacy-platform/
+scp tailwind.config.ts yaku-navi:/var/www/pharmacy-platform/
+scp postcss.config.mjs yaku-navi:/var/www/pharmacy-platform/
+scp backend/package.json yaku-navi:/var/www/pharmacy-platform/backend/
+scp backend/package-lock.json yaku-navi:/var/www/pharmacy-platform/backend/
 ```
 
 ### 方法B: FTPでアップロード
@@ -95,14 +138,21 @@ scp backend/package.json ユーザー名@yaku-navi.com:/var/www/pharmacy-platfor
 
 ## 🔐 Step 3: VPSサーバーにSSH接続（1分）
 
+SSH設定ファイルを設定済みの場合、以下の短いコマンドで接続できます（パスワード不要）：
+
 ```bash
-ssh ユーザー名@yaku-navi.com
+ssh yaku-navi
 ```
 
 または
 
 ```bash
-ssh ユーザー名@サーバーIP
+ssh yaku-navi.com
+```
+
+**注意**: SSH設定ファイルを設定していない場合は、以下のコマンドを使用：
+```bash
+ssh root@162.43.8.168
 ```
 
 ---

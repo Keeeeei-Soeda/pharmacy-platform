@@ -241,7 +241,9 @@ const acceptJobOffer = async (req, res) => {
         pharmacyAddress: `${contract.pharmacy_profiles.prefecture || ''} ${contract.pharmacy_profiles.city || ''}`.trim(),
         pharmacistName: `${contract.pharmacist_profiles.last_name} ${contract.pharmacist_profiles.first_name}`,
         startDate: contract.initial_work_date || contract.start_date || new Date(),
-        workDays: contract.work_days || 30,
+        workDays: contract.work_days_count || contract.work_days || 30,
+        dailyRate: contract.daily_rate || 25000,
+        totalCompensation: contract.total_compensation || (contract.daily_rate * (contract.work_days_count || contract.work_days || 30)),
         jobDescription: contract.job_applications?.job_postings?.description || '調剤業務、服薬指導等',
         workHours: contract.job_applications?.job_postings?.work_hours || '薬局と協議の上決定'
       });

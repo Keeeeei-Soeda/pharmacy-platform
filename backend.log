@@ -7,25 +7,1570 @@
 [33m[nodemon] watching path(s): *.*[39m
 [33m[nodemon] watching extensions: js,mjs,cjs,json[39m
 [32m[nodemon] starting `node src/server.js`[39m
-[dotenv@17.2.2] injecting env (6) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
-[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.2] injecting env (6) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
 Connected to PostgreSQL database
 ✅ Prisma Client initialized successfully
 Database connected successfully
 Server running on port 3001
 Environment: development
 API URL: http://localhost:3001
-[32m[nodemon] restarting due to changes...[39m
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.job_postings.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/jobController.js:205:27
+
+  202 
+  203 // 求人一覧取得
+  204 const [jobs, total] = await Promise.all([
+→ 205   prisma.job_postings.findMany(
+The column `job_postings.preferred_schedule` does not exist in the current database.
+Get jobs error: PrismaClientKnownRequestError: 
+Invalid `prisma.job_postings.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/jobController.js:205:27
+
+  202 
+  203 // 求人一覧取得
+  204 const [jobs, total] = await Promise.all([
+→ 205   prisma.job_postings.findMany(
+The column `job_postings.preferred_schedule` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async Promise.all (index 0)
+    at async getJobs (/Users/soedakei/pharmacy-platform/backend/src/controllers/jobController.js:204:27) {
+  code: 'P2022',
+  meta: {
+    modelName: 'job_postings',
+    column: 'job_postings.preferred_schedule'
+  },
+  clientVersion: '6.19.1'
+}
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.work_notice_url` does not exist in the current database.
+Get pharmacist contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.work_notice_url` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacistContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.work_notice_url'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.work_notice_url` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacistContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:23)
+prisma:error 
+Invalid `prisma.job_postings.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/jobController.js:205:27
+
+  202 
+  203 // 求人一覧取得
+  204 const [jobs, total] = await Promise.all([
+→ 205   prisma.job_postings.findMany(
+The column `job_postings.preferred_schedule` does not exist in the current database.
+Get jobs error: PrismaClientKnownRequestError: 
+Invalid `prisma.job_postings.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/jobController.js:205:27
+
+  202 
+  203 // 求人一覧取得
+  204 const [jobs, total] = await Promise.all([
+→ 205   prisma.job_postings.findMany(
+The column `job_postings.preferred_schedule` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async Promise.all (index 0)
+    at async getJobs (/Users/soedakei/pharmacy-platform/backend/src/controllers/jobController.js:204:27) {
+  code: 'P2022',
+  meta: {
+    modelName: 'job_postings',
+    column: 'job_postings.preferred_schedule'
+  },
+  clientVersion: '6.19.1'
+}
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.work_notice_url` does not exist in the current database.
+Get pharmacist contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.work_notice_url` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platfor[32m[nodemon] restarting due to changes...[39m
 [32m[nodemon] starting `node src/server.js`[39m
-[dotenv@17.2.2] injecting env (6) from .env -- tip: [dotenv@17.2.2] injecting env (6) from .env -- tip: ⚙[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load mul[dotenv@17.2.2] injecting env (0) from .env -- tip: �Connected to PostgreSQL database
+[dotenv@17.2.2] in[dotenv@17.2.2] injecting env (6) from .env -- tip: ⚙️  write to custom object with { proce[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+✅ Prisma Client initialized successfully
+Connected to PostgreSQL database
 Database connected successfully
 Server running on port 3001
 Environment: development
-API URL: htDatabase connected successfully
+API URL: http://localhost:3001
+[32m[nodemon] clean exit - waiting for changes before restart[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/server.js`[39m[[dotenv@17.2.2] injecting env (6) from .env -- tip: 🔐 prevent committing .env to code: https://dot[dotenv@17.2.2] inj[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 version env with Radar: https:/Connected to PostgreSQL database
+✅ Prisma Client initialized successfully
+Database connected successfully
+Server running on pServer running on port 3001
+Environment: development
+API URL: htt[32m[nodemon] clean exit - waiting for changes before restart[39m
+[32m[nodemon] rest[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node s[dotenv@17.2.2] inj[dotenv@17.2.2] injecting env (6) from .env -- tip: 🔐 encrypt with Dotenvx: https://do[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+Connected to Postgr✅ Prisma Client initialized successfully
+Connected to PostgreSQL database
+Database connected successfully
 Server running on port 3001
-Env[32m[nodemon] clean exit - waiting for changes befor[32m[nodemo[32m[nodemon] restarting due to changes...[39m
+Environment: development
+API URL: httConnected to Postgr[32m[nodemon][32m[nodemon] restarting due to changes...[39m
 [32m[nodemon] starting `node src/server.js`[39m
-[do[dotenv@17.2.2] injecting env (6) from .env -- tip: ⚙️  enable debug logging with { debug: true }
-[dotenv@17.2.2][dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
-Connected tConnected to PostgreSQ✅ Prisma ✅ Prisma Client initialized suDatabase connected successfully
-Server runnServer running onEnvironmentEnvironmentSerAPI URL: htAPI URL: http://loca[32m[nodemon] clean exit - waiting for changes be[32m[nodemon] clean exit - waiting for changes before restart[39m
+[dotenv@17.2.2] injecting env (6) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+Connected to PostgreSQL database
+✅ Prisma Client initialized successfully
+Database connected successfully
+Server running on port 3001
+Environment: development
+API URL: http://localhost:3001
+[32m[nodemon] clean exit - waiting foConnected to PostgreSQL databa[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/server.js`[39m
+[dotenv@17.2.2] injecting env (6) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+Connected to PostgreSQL database
+✅ Prisma Client initialized successfully
+Database connected successfully
+Server running on port 3001
+Environment: development
+API URL: http://localhost:3001
+[32m[nodemon] clean exit - waiting for changes before restart[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/server.js`[39m
+[dotenv@17.2.2] injecting env (6) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+Connected to PostgreSQL database
+✅ Prisma Client initialized successfully
+Database connected successfully
+Server running on port 3001
+Environment: development
+API URL: http://localhost:3001
+[32m[nodemon] clean exit - waiting for changes before restart[39m
+/dotenvx.com/radar
+Connected to PostgreSQL database
+✅ Prisma Client initialized successfully
+Database connected successfully
+Server running on port 3001
+Environment: development
+API URL: http://localhost:3001
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacist contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacistContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacistContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacist contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacistContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:51
+
+  484 }
+  485 
+  486 // 契約一覧を取得
+→ 487 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacistContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:487:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.platform_fees.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/platformFeeController.js:27:45
+
+  24 }
+  25 
+  26 // 手数料レコードを取得
+→ 27 const fees = await prisma.platform_fees.findMany({
+       where: {
+         pharmacy_id: "e3249449-35ff-4523-b5d5-1f8a95fab13d"
+       },
+       include: {
+         work_contracts: {
+           include: {
+             job_postings: {
+             ~~~~~~~~~~~~
+               select: {
+                 title: true,
+                 work_location: true
+               }
+             },
+             pharmacist_profiles: {
+               select: {
+                 id: true,
+                 first_name: true,
+                 last_name: true
+               }
+             },
+     ?       job_applications?: true,
+     ?       pharmacy_profiles?: true,
+     ?       work_schedules?: true,
+     ?       platform_fees?: true
+           }
+         }
+       },
+       orderBy: {
+         created_at: "desc"
+       }
+     })
+
+Unknown field `job_postings` for include statement on model `work_contracts`. Available options are marked with ?.
+Get pharmacy fees error: PrismaClientValidationError: 
+Invalid `prisma.platform_fees.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/platformFeeController.js:27:45
+
+  24 }
+  25 
+  26 // 手数料レコードを取得
+→ 27 const fees = await prisma.platform_fees.findMany({
+       where: {
+         pharmacy_id: "e3249449-35ff-4523-b5d5-1f8a95fab13d"
+       },
+       include: {
+         work_contracts: {
+           include: {
+             job_postings: {
+             ~~~~~~~~~~~~
+               select: {
+                 title: true,
+                 work_location: true
+               }
+             },
+             pharmacist_profiles: {
+               select: {
+                 id: true,
+                 first_name: true,
+                 last_name: true
+               }
+             },
+     ?       job_applications?: true,
+     ?       pharmacy_profiles?: true,
+     ?       work_schedules?: true,
+     ?       platform_fees?: true
+           }
+         }
+       },
+       orderBy: {
+         created_at: "desc"
+       }
+     })
+
+Unknown field `job_postings` for include statement on model `work_contracts`. Available options are marked with ?.
+    at Nn (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6911)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyFees (/Users/soedakei/pharmacy-platform/backend/src/controllers/platformFeeController.js:27:18) {
+  clientVersion: '6.19.1'
+}
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.platform_fees.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/platformFeeController.js:27:45
+
+  24 }
+  25 
+  26 // 手数料レコードを取得
+→ 27 const fees = await prisma.platform_fees.findMany({
+       where: {
+         pharmacy_id: "e3249449-35ff-4523-b5d5-1f8a95fab13d"
+       },
+       include: {
+         work_contracts: {
+           include: {
+             job_postings: {
+             ~~~~~~~~~~~~
+               select: {
+                 title: true,
+                 work_location: true
+               }
+             },
+             pharmacist_profiles: {
+               select: {
+                 id: true,
+                 first_name: true,
+                 last_name: true
+               }
+             },
+     ?       job_applications?: true,
+     ?       pharmacy_profiles?: true,
+     ?       work_schedules?: true,
+     ?       platform_fees?: true
+           }
+         }
+       },
+       orderBy: {
+         created_at: "desc"
+       }
+     })
+
+Unknown field `job_postings` for include statement on model `work_contracts`. Available options are marked with ?.
+Get pharmacy fees error: PrismaClientValidationError: 
+Invalid `prisma.platform_fees.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/platformFeeController.js:27:45
+
+  24 }
+  25 
+  26 // 手数料レコードを取得
+→ 27 const fees = await prisma.platform_fees.findMany({
+       where: {
+         pharmacy_id: "e3249449-35ff-4523-b5d5-1f8a95fab13d"
+       },
+       include: {
+         work_contracts: {
+           include: {
+             job_postings: {
+             ~~~~~~~~~~~~
+               select: {
+                 title: true,
+                 work_location: true
+               }
+             },
+             pharmacist_profiles: {
+               select: {
+                 id: true,
+                 first_name: true,
+                 last_name: true
+               }
+             },
+     ?       job_applications?: true,
+     ?       pharmacy_profiles?: true,
+     ?       work_schedules?: true,
+     ?       platform_fees?: true
+           }
+         }
+       },
+       orderBy: {
+         created_at: "desc"
+       }
+     })
+
+Unknown field `job_postings` for include statement on model `work_contracts`. Available options are marked with ?.
+    at Nn (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6911)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyFees (/Users/soedakei/pharmacy-platform/backend/src/controllers/platformFeeController.js:27:18) {
+  clientVersion: '6.19.1'
+}
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+0)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+prisma:error 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+Get pharmacy contracts error: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23) {
+  code: 'P2022',
+  meta: {
+    modelName: 'work_contracts',
+    column: 'work_contracts.job_posting_id'
+  },
+  clientVersion: '6.19.1'
+}
+Error stack: PrismaClientKnownRequestError: 
+Invalid `prisma.work_contracts.findMany()` invocation in
+/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:51
+
+  530 const pharmacyIds = pharmacyProfiles.map(p => p.id);
+  531 
+  532 // 契約一覧を取得
+→ 533 const contracts = await prisma.work_contracts.findMany(
+The column `work_contracts.job_posting_id` does not exist in the current database.
+    at ei.handleRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/soedakei/pharmacy-platform/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async getPharmacyContracts (/Users/soedakei/pharmacy-platform/backend/src/controllers/contractController.js:533:23)
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+Connected to PostgreSQL database
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/server.js`[39m
+[dotenv@17.2.2] injecting env (6) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+Connected to PostgreSQL database
+✅ Prisma Client initialized successfully
+Database connected successfully
+Server running on port 3001
+Environment: development
+API URL: http://localhost:3001
+[32m[nodemon] clean exit - waiting for changes before restart[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/server.js`[39m
+[dotenv@17.2.2] injecting env (6) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+Connected to PostgreSQL database
+✅ Prisma Client initialized successfully
+Database connected successfully
+Server running on port 3001
+Environment: development
+API URL: http://localhost:3001
+[32m[nodemon] clean exit - waiting for changes before restart[39m
