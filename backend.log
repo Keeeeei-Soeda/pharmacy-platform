@@ -15,3 +15,17 @@ Database connected successfully
 Server running on port 3001
 Environment: development
 API URL: http://localhost:3001
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/server.js`[39m
+[dotenv@17.2.2] injecting env (6) from .env -- tip: [dotenv@17.2.2] injecting env (6) from .env -- tip: ⚙[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load mul[dotenv@17.2.2] injecting env (0) from .env -- tip: �Connected to PostgreSQL database
+Database connected successfully
+Server running on port 3001
+Environment: development
+API URL: htDatabase connected successfully
+Server running on port 3001
+Env[32m[nodemon] clean exit - waiting for changes befor[32m[nodemo[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/server.js`[39m
+[do[dotenv@17.2.2] injecting env (6) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.2.2][dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+Connected tConnected to PostgreSQ✅ Prisma ✅ Prisma Client initialized suDatabase connected successfully
+Server runnServer running onEnvironmentEnvironmentSerAPI URL: htAPI URL: http://loca[32m[nodemon] clean exit - waiting for changes be[32m[nodemon] clean exit - waiting for changes before restart[39m

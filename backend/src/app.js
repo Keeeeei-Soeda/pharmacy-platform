@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
 const { responseCaseMiddleware } = require('./middleware/responseCase');
+const pool = require('./database/connection');
 
 const app = express();
 
@@ -28,6 +29,63 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     status: 'OK'
   });
+});
+
+// ヘルスチェックエンドポイント（PM2監視用）
+app.get('/health', async (req, res) => {
+  try {
+    // データベース接続チェック
+    await pool.query('SELECT 1');
+    
+    res.status(200).json({ 
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      database: 'connected'
+    });
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'unhealthy',
+      error: error.message,
+      database: 'disconnected'
+    });
+  }
+});
+
+// APIヘルスチェック（より詳細）
+app.get('/api/health', async (req, res) => {
+  try {
+    // データベース接続チェック
+    const dbStart = Date.now();
+    await pool.query('SELECT 1');
+    const dbLatency = Date.now() - dbStart;
+    
+    res.status(200).json({ 
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: {
+        rss: `${Math.round(process.memoryUsage().rss / 1024 / 1024)}MB`,
+        heapTotal: `${Math.round(process.memoryUsage().heapTotal / 1024 / 1024)}MB`,
+        heapUsed: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`,
+      },
+      database: {
+        status: 'connected',
+        latency: `${dbLatency}ms`
+      },
+      nodeVersion: process.version,
+      platform: process.platform
+    });
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'unhealthy',
+      error: error.message,
+      database: {
+        status: 'disconnected'
+      }
+    });
+  }
 });
 
 // APIルート
